@@ -20,11 +20,11 @@ class VerifyEmailNotification extends Notification
         $url = config('app.url').'/email/verify/'.urlencode($this->token);
 
         return (new MailMessage)
-            ->subject('Confirma tu correo electrónico')
-            ->greeting('¡Hola '.$notifiable->name.'!')
-            ->line('Gracias por crear tu cuenta. Por favor confirma tu correo electrónico presionando el botón a continuación.')
-            ->action('Confirmar Correo Electrónico', $url)
-            ->line('Este enlace expirará en 15 minutos.')
-            ->line('Si no creaste esta cuenta, puedes ignorar este mensaje.');
+            ->subject(__('notifications.verify.subject', locale: $notifiable->locale))
+            ->greeting(__('notifications.verify.greeting', ['name' => $notifiable->name], $notifiable->locale))
+            ->line(__('notifications.verify.line1', locale: $notifiable->locale))
+            ->action(__('notifications.verify.action', locale: $notifiable->locale), $url)
+            ->line(__('notifications.verify.expiry', locale: $notifiable->locale))
+            ->line(__('notifications.verify.ignore', locale: $notifiable->locale));
     }
 }

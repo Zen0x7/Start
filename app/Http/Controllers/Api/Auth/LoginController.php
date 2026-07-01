@@ -39,6 +39,8 @@ class LoginController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
+        $user->updateQuietly(['locale' => app()->getLocale()]);
+
         if ($user->email_verified_at === null) {
             return response()->json([
                 'message' => __('auth.unverified'),

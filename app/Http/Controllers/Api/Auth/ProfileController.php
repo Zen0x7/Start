@@ -44,6 +44,7 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
+            'locale' => ['nullable', 'string', 'in:en,es'],
         ]);
 
         $emailChanged = $validated['email'] !== $user->email;

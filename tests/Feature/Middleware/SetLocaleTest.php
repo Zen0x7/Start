@@ -31,4 +31,5 @@ class SetLocaleTest extends TestCase
         $response->assertStatus(422);
         $this->assertSame('es', app()->getLocale());
     }
+
 }

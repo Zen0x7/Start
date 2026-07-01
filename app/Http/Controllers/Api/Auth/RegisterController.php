@@ -13,11 +13,16 @@ class RegisterController extends Controller
 {
     public function __invoke(RegisterRequest $request, JwtService $jwt): JsonResponse
     {
-        $user = User::create($request->validated());
+        $data = $request->validated();
+        $data['locale'] = app()->getLocale();
+
+        $user = User::create($data);
 
         $token = $jwt->buildEmailVerificationToken($user->email);
 
-        $user->notify(new VerifyEmailNotification($token));
+        $user->notify(
+            (new VerifyEmailNotification($token))->locale($user->locale),
+        );
 
         return response()->json([
             'message' => __('auth.account_created'),

@@ -46,11 +46,14 @@ function handleLogout() {
     router.push({ name: 'login' })
 }
 
-function setLang(code: string) {
+async function setLang(code: string) {
     locale.value = code as 'en' | 'es'
     saved.value = code
     document.querySelector('html')?.setAttribute('lang', code)
     langOpen.value = false
+    try {
+        await api.put('/auth/profile', { locale: code })
+    } catch {}
 }
 
 const languages = [
