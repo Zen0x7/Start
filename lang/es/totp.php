@@ -8,4 +8,5 @@ return [
     'configured' => 'Dispositivo TOTP configurado exitosamente.',
     'verified' => 'Código TOTP verificado exitosamente.',
     'token_required' => 'Token requerido.',
+    'device_removed' => 'Dispositivo TOTP eliminado.',
 ];

@@ -48,7 +48,7 @@ class TotpSetupTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function test_init_fails_if_totp_already_configured(): void
+    public function test_init_allows_multiple_devices(): void
     {
         $user = User::factory()->create();
         $this->totp->createDevice($user, TOTP::generate()->getSecret());
@@ -58,8 +58,8 @@ class TotpSetupTest extends TestCase
             'temp_token' => $tempToken,
         ]);
 
-        $response->assertStatus(400);
-        $response->assertJson(['message' => 'Ya tienes un dispositivo TOTP configurado.']);
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['cert_id', 'public_key']);
     }
 
     public function test_confirm_with_invalid_code_fails(): void
@@ -153,5 +153,18 @@ class TotpSetupTest extends TestCase
 
         $response->assertStatus(400);
         $response->assertJson(['message' => 'El certificado ha expirado. Solicita uno nuevo.']);
+    }
+
+    public function test_init_with_auth_token_instead_of_challenge(): void
+    {
+        $user = User::factory()->create();
+        $authToken = $this->jwt->buildAuthToken((string) $user->id);
+
+        $response = $this->postJson('/api/auth/totp/setup/init', [], [
+            'Authorization' => 'Bearer '.$authToken,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['cert_id', 'public_key']);
     }
 }

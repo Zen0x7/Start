@@ -123,6 +123,35 @@ describe('api', () => {
         }
     })
 
+    it('sends X-Locale header from localStorage', async () => {
+        localStorage.setItem('app_locale', '"es"')
+        const mock = mockFetch(200, {})
+
+        await api.get('/test')
+
+        expect(mock).toHaveBeenCalledWith(
+            '/api/test',
+            expect.objectContaining({
+                headers: expect.objectContaining({ 'X-Locale': 'es' }),
+            }),
+        )
+    })
+
+    it('fallbacks to en when navigator is undefined', async () => {
+        vi.stubGlobal('navigator', undefined)
+        localStorage.removeItem('app_locale')
+        const mock = mockFetch(200, {})
+
+        await api.get('/test')
+
+        expect(mock).toHaveBeenCalledWith(
+            '/api/test',
+            expect.objectContaining({
+                headers: expect.objectContaining({ 'X-Locale': 'en' }),
+            }),
+        )
+    })
+
     it('throws plain error when no message', async () => {
         mockFetch(500, {})
 

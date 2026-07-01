@@ -19,6 +19,12 @@ const router = createRouter({
             meta: { requiresAuth: true, hideGlobalNav: true },
         },
         {
+            path: '/settings',
+            name: 'settings',
+            component: () => import('@/pages/SettingsPage.vue'),
+            meta: { requiresAuth: true, hideGlobalNav: true },
+        },
+        {
             path: '/register',
             name: 'register',
             component: () => import('@/pages/auth/RegisterPage.vue'),

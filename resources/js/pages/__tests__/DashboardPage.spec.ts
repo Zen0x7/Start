@@ -9,6 +9,7 @@ const router = createRouter({
     routes: [
         { path: '/dashboard', name: 'dashboard', component: DashboardPage },
         { path: '/login', name: 'login', component: { template: '<div>Login</div>' } },
+        { path: '/settings', name: 'settings', component: { template: '<div>Settings</div>' }, meta: { requiresAuth: true } },
     ],
 })
 

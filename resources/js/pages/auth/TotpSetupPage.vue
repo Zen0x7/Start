@@ -15,6 +15,7 @@ const email = ref((route.query.email as string) || '')
 const step = ref<'init' | 'qr' | 'confirm'>('init')
 const qrDataUrl = ref('')
 const totpCode = ref('')
+const deviceLabel = ref('')
 const error = ref('')
 const loading = ref(false)
 const auth = useAuthStore()
@@ -49,11 +50,6 @@ async function generateQR(text: string) {
 }
 
 onMounted(async () => {
-    if (!tempToken.value) {
-        error.value = t('totp.token_required')
-        return
-    }
-
     if (!crypto.subtle) {
         error.value = t('errors.generic')
         loading.value = false
@@ -62,9 +58,12 @@ onMounted(async () => {
 
     loading.value = true
     try {
+        const body: Record<string, string> = {}
+        if (tempToken.value) body.temp_token = tempToken.value
+
         const res = await api.post<{ cert_id: number; public_key: string }>(
             '/auth/totp/setup/init',
-            { temp_token: tempToken.value },
+            body,
         )
 
         const resData = res as unknown as { cert_id: number; public_key_jwk: JsonWebKey }
@@ -112,6 +111,7 @@ async function confirmSetup() {
                 cert_id: certId.value,
                 encrypted_secret: encryptedBase64,
                 totp_code: totpCode.value,
+                label: deviceLabel.value || null,
             },
         )
         const data = res as unknown as { token: string; user: { id: number; name: string; email: string } }
@@ -145,7 +145,7 @@ async function confirmSetup() {
         >
             <img v-if="qrDataUrl" :src="qrDataUrl" alt="TOTP QR" class="mx-auto mb-4 w-48 border-2 border-[#111]" />
 
-            <div class="mb-4 border-2 border-[#ddd] bg-[#f5f5f0] p-3 text-xs text-[#555] break-all">
+            <div class="mb-6 border-2 border-[#ddd] bg-[#f5f5f0] p-3 text-xs text-[#555] break-all">
                 <p class="font-mono text-[#111]">{{ secretBase32 }}</p>
             </div>
 
@@ -153,7 +153,14 @@ async function confirmSetup() {
                 {{ error }}
             </p>
 
-            <div class="mb-4 flex justify-center">
+            <div class="mb-6">
+                <PvFloatLabel class="text-left">
+                    <PvInputText id="device-label" v-model="deviceLabel" class="w-full" />
+                    <label for="device-label">{{ t('settings.device_name') }}</label>
+                </PvFloatLabel>
+            </div>
+
+            <div class="mb-6 flex justify-center">
                 <PvInputOtp v-model="totpCode" :length="6" integer-only :aria-label="t('totp.verify_code')" />
             </div>
 

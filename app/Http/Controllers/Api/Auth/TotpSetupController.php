@@ -17,10 +17,6 @@ class TotpSetupController extends Controller
     {
         $user = $this->resolveUser($request, $jwt);
 
-        if ($user->totpDevices()->exists()) {
-            throw new HttpException(400, __('totp.already_configured'));
-        }
-
         $cert = $certificates->issue($user->id);
 
         return response()->json([
@@ -38,6 +34,7 @@ class TotpSetupController extends Controller
             'cert_id' => ['required', 'integer', 'exists:totp_certificates,id'],
             'encrypted_secret' => ['required', 'string'],
             'totp_code' => ['required', 'string', 'size:6'],
+            'label' => ['nullable', 'string', 'max:255'],
         ]);
 
         $cert = $user->totpCertificates()->findOrFail($validated['cert_id']);
@@ -53,7 +50,7 @@ class TotpSetupController extends Controller
             throw new HttpException(400, __('totp.invalid_code'));
         }
 
-        $totp->createDevice($user, $secret);
+        $totp->createDevice($user, $secret, $validated['label'] ?? null);
 
         $cert->delete();
 
@@ -78,7 +75,11 @@ class TotpSetupController extends Controller
             throw new HttpException(401, __('totp.token_required'));
         }
 
-        $payload = $jwt->validateTotpChallengeToken($token);
+        try {
+            $payload = $jwt->validateTotpChallengeToken($token);
+        } catch (\RuntimeException) {
+            $payload = $jwt->validateAuthToken($token);
+        }
 
         return User::findOrFail($payload['payload']['user_id']);
     }

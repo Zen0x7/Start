@@ -45,4 +45,27 @@ class UserTest extends TestCase
         $this->assertArrayNotHasKey('password', $json);
         $this->assertArrayNotHasKey('remember_token', $json);
     }
+
+    public function test_avatar_returns_gravatar_url(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'profile_photo_path' => null,
+        ]);
+
+        $hash = md5('test@example.com');
+        $this->assertStringContainsString("gravatar.com/avatar/{$hash}", $user->avatar);
+        $this->assertStringContainsString('s=200', $user->avatar);
+        $this->assertStringContainsString('s=48', $user->avatar_thumb);
+    }
+
+    public function test_avatar_returns_local_path_when_set(): void
+    {
+        $user = User::factory()->create([
+            'profile_photo_path' => 'profile-photos/test.jpg',
+        ]);
+
+        $this->assertStringContainsString('storage/profile-photos/test.jpg', $user->avatar);
+        $this->assertStringContainsString('storage/profile-photos/test.jpg', $user->avatar_thumb);
+    }
 }

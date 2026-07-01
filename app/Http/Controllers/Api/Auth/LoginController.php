@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\LoginAttempt;
 use App\Models\User;
 use App\Services\JwtService;
 use App\Services\TotpService;
@@ -17,10 +18,26 @@ class LoginController extends Controller
         $user = User::where('email', $request->input('email'))->first();
 
         if ($user === null || ! password_verify($request->input('password'), $user->password)) {
+            LoginAttempt::create([
+                'user_id' => $user?->id,
+                'email' => $request->input('email'),
+                'successful' => false,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
             throw ValidationException::withMessages([
                 'email' => [__('auth.credentials')],
             ]);
         }
+
+        LoginAttempt::create([
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'successful' => true,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
 
         if ($user->email_verified_at === null) {
             return response()->json([

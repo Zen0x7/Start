@@ -8,4 +8,5 @@ return [
     'configured' => 'TOTP device configured successfully.',
     'verified' => 'TOTP code verified successfully.',
     'token_required' => 'Token required.',
+    'device_removed' => 'TOTP device removed.',
 ];

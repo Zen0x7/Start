@@ -26,6 +26,7 @@ function handleLogout() {
                 <div class="flex items-center gap-4">
                     <LanguageSwitcher />
                     <span class="text-sm text-[#555]">{{ auth.currentUser?.name }}</span>
+                    <router-link :to="{ name: 'settings' }" class="text-sm font-semibold text-[#111] underline hover:text-[#333]">{{ t('settings.title') }}</router-link>
                     <PvButton severity="secondary" @click="handleLogout">{{ t('auth.logout') }}</PvButton>
                 </div>
             </div>
