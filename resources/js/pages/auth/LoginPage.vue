@@ -18,15 +18,28 @@ async function handleSubmit() {
     try {
         const result = await auth.login(email.value, password.value)
 
-        if (!result.verified) {
+        if (result.verified) {
+            router.push({ name: 'dashboard' })
+            return
+        }
+
+        if (result.totp_status) {
+            const routeName =
+                result.totp_status === 'setup_required'
+                    ? 'totp-setup'
+                    : 'totp-verify'
+
             router.push({
-                name: 'verify-email',
-                query: { email: email.value },
+                name: routeName,
+                query: { temp_token: result.temp_token, email: email.value },
             })
             return
         }
 
-        router.push({ name: 'home' })
+        router.push({
+            name: 'verify-email',
+            query: { email: email.value },
+        })
     } catch (err: unknown) {
         const e = err as Error & { data?: { errors?: Record<string, string[]> } }
         const messages = e.data?.errors

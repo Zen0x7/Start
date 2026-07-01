@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EmailVerified;
 use App\Http\Middleware\JwtAuth;
+use App\Http\Middleware\RequireTotp;
 use App\Http\Middleware\VerifyToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'jwt.auth' => JwtAuth::class,
             'email.verified' => EmailVerified::class,
             'verify.token' => VerifyToken::class,
+            'totp.confirm' => RequireTotp::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

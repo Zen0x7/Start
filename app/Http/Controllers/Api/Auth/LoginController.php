@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use App\Services\JwtService;
+use App\Services\TotpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
@@ -28,10 +29,13 @@ class LoginController extends Controller
             ], 403);
         }
 
-        $token = $jwt->buildAuthToken((string) $user->id);
+        $tempToken = $jwt->buildTotpChallengeToken((string) $user->id);
+
+        $hasTotp = app(TotpService::class)->hasDevices($user);
 
         return response()->json([
-            'token' => $token,
+            'totp_status' => $hasTotp ? 'verify_required' : 'setup_required',
+            'temp_token' => $tempToken,
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,

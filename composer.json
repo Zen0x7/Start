@@ -9,7 +9,9 @@
         "php": "^8.3",
         "laravel/ai": "*",
         "laravel/framework": "^13.8",
-        "laravel/tinker": "^3.0"
+        "laravel/tinker": "^3.0",
+        "phpseclib/phpseclib": "^3.0",
+        "spomky-labs/otphp": "^11.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 import { api } from '@/services/api'
 
 const route = useRoute()
 const router = useRouter()
-const auth = useAuthStore()
 
 const token = route.params.token as string
 const email = ref('')
@@ -14,6 +12,7 @@ const password = ref('')
 const loading = ref(false)
 const error = ref('')
 const verified = ref(false)
+const tempToken = ref('')
 
 onMounted(async () => {
     try {
@@ -22,8 +21,7 @@ onMounted(async () => {
         )
         email.value = res.data?.email ?? ''
     } catch {
-        error.value =
-            'El enlace de verificación no es válido o ha expirado.'
+        error.value = 'El enlace de verificación no es válido o ha expirado.'
     }
 })
 
@@ -32,12 +30,20 @@ async function handleSubmit() {
     loading.value = true
 
     try {
-        const result = await auth.verifyEmail(token, password.value)
+        const res = await api.post<{ temp_token: string; user: { email: string } }>(
+            '/auth/verify-email',
+            { token, password: password.value },
+        )
+        const data = res as unknown as { temp_token: string; user: { name: string; email: string } }
+        tempToken.value = data.temp_token
         verified.value = true
 
         setTimeout(() => {
-            router.push({ name: 'home' })
-        }, 2000)
+            router.push({
+                name: 'totp-setup',
+                query: { temp_token: data.temp_token, email: data.user.email },
+            })
+        }, 1500)
     } catch (err: unknown) {
         const e = err as Error & { data?: { message?: string } }
         error.value = e.data?.message || e.message || 'Error al verificar el correo.'
@@ -55,9 +61,9 @@ async function handleSubmit() {
                     {{ error }}
                 </p>
                 <router-link
-                    :to="{ name: 'login' }"
+                    :to="{ name: 'register' }"
                     class="text-blue-600 hover:underline"
-                >Volver a Iniciar Sesión</router-link>
+                >Crear una nueva cuenta</router-link>
             </div>
         </template>
 
@@ -71,7 +77,7 @@ async function handleSubmit() {
                 <h1 class="text-2xl font-bold text-gray-900">
                     Correo Electrónico Confirmado
                 </h1>
-                <p class="text-gray-600">Redirigiendo...</p>
+                <p class="text-gray-600">Configura tu autenticación de dos factores...</p>
             </div>
         </template>
 

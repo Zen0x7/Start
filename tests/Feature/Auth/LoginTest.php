@@ -11,17 +11,9 @@ class LoginTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
-    private JwtService $jwt;
-
-    protected function setUp(): void
+    public function test_user_with_verified_email_gets_totp_status(): void
     {
-        parent::setUp();
-        $this->jwt = app(JwtService::class);
-    }
-
-    public function test_user_with_verified_email_can_login(): void
-    {
-        $user = User::factory()->create([
+        User::factory()->create([
             'email' => 'ian@example.com',
             'password' => bcrypt('password123'),
             'email_verified_at' => now(),
@@ -34,20 +26,41 @@ class LoginTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'token',
+            'totp_status',
+            'temp_token',
             'user' => ['id', 'name', 'email'],
         ]);
+        $this->assertContains($response->json('totp_status'), ['setup_required', 'verify_required']);
 
-        $payload = $this->jwt->validateAuthToken($response->json('token'));
-        $this->assertSame((string) $user->id, $payload['payload']['user_id']);
+        $tempToken = $response->json('temp_token');
+        $this->assertNotEmpty($tempToken);
+
+        $payload = app(JwtService::class)->validateTotpChallengeToken($tempToken);
+        $this->assertSame((string) $response->json('user.id'), $payload['payload']['user_id']);
     }
 
-    public function test_user_with_unverified_email_cannot_login(): void
+    public function test_login_returns_setup_required_when_no_totp_devices(): void
     {
         User::factory()->create([
             'email' => 'ian@example.com',
             'password' => bcrypt('password123'),
-            'email_verified_at' => null,
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => 'ian@example.com',
+            'password' => 'password123',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['totp_status' => 'setup_required']);
+    }
+
+    public function test_user_with_unverified_email_cannot_login(): void
+    {
+        User::factory()->unverified()->create([
+            'email' => 'ian@example.com',
+            'password' => bcrypt('password123'),
         ]);
 
         $response = $this->postJson('/api/auth/login', [
@@ -58,7 +71,6 @@ class LoginTest extends TestCase
         $response->assertStatus(403);
         $response->assertJson([
             'message' => 'Antes de continuar deberás confirmar tu correo electrónico.',
-            'email' => 'ian@example.com',
         ]);
     }
 

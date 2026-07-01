@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import DashboardPage from '@/pages/DashboardPage.vue'
 import HomePage from '@/pages/HomePage.vue'
 
 const router = createRouter({
@@ -10,6 +12,12 @@ const router = createRouter({
             component: HomePage,
         },
         {
+            path: '/dashboard',
+            name: 'dashboard',
+            component: DashboardPage,
+            meta: { requiresAuth: true },
+        },
+        {
             path: '/register',
             name: 'register',
             component: () => import('@/pages/auth/RegisterPage.vue'),
@@ -18,6 +26,7 @@ const router = createRouter({
             path: '/login',
             name: 'login',
             component: () => import('@/pages/auth/LoginPage.vue'),
+            meta: { guest: true },
         },
         {
             path: '/email/verify',
@@ -29,7 +38,29 @@ const router = createRouter({
             name: 'confirm-email',
             component: () => import('@/pages/auth/ConfirmEmailPage.vue'),
         },
+        {
+            path: '/totp/setup',
+            name: 'totp-setup',
+            component: () => import('@/pages/auth/TotpSetupPage.vue'),
+        },
+        {
+            path: '/totp/verify',
+            name: 'totp-verify',
+            component: () => import('@/pages/auth/TotpVerifyPage.vue'),
+        },
     ],
+})
+
+router.beforeEach((to, from) => {
+    const auth = useAuthStore()
+
+    if (to.meta.requiresAuth && !auth.isAuthenticated) {
+        return { name: 'login' }
+    }
+
+    if (to.meta.guest && auth.isAuthenticated) {
+        return { name: 'dashboard' }
+    }
 })
 
 export default router

@@ -79,6 +79,34 @@ describe('api', () => {
         }
     })
 
+    it('makes PUT request', async () => {
+        const mock = mockFetch(200, { updated: true })
+
+        const result = await api.put('/test/1', { name: 'new' })
+
+        expect(mock).toHaveBeenCalledWith('/api/test/1', {
+            method: 'PUT',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: 'new' }),
+        })
+        expect(result).toEqual({ updated: true })
+    })
+
+    it('makes DELETE request', async () => {
+        const mock = mockFetch(200, { deleted: true })
+
+        const result = await api.delete('/test/1')
+
+        expect(mock).toHaveBeenCalledWith('/api/test/1', {
+            method: 'DELETE',
+            headers: { Accept: 'application/json' },
+        })
+        expect(result).toEqual({ deleted: true })
+    })
+
     it('throws plain error when no message', async () => {
         mockFetch(500, {})
 

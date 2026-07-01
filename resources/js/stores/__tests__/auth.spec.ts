@@ -60,19 +60,22 @@ describe('auth store', () => {
         })
     })
 
-    it('login with verified user saves token and user', async () => {
+    it('login returns totp_status and temp_token', async () => {
         mockFetch(200, {
-            token: 'jwt-token',
+            totp_status: 'verify_required',
+            temp_token: 'challenge-token',
             user: { id: 1, name: 'Ian', email: 'ian@example.com' },
         })
 
         const auth = useAuthStore()
         const result = await auth.login('ian@example.com', 'secret123')
 
-        expect(result.verified).toBe(true)
-        expect(auth.isAuthenticated).toBe(true)
-        expect(auth.currentUser?.name).toBe('Ian')
-        expect(localStorage.getItem('auth_token')).toBe('jwt-token')
+        expect(result.verified).toBe(false)
+        const r = result as { totp_status: string; temp_token: string; user: { name: string } }
+        expect(r.totp_status).toBe('verify_required')
+        expect(r.temp_token).toBe('challenge-token')
+        expect(r.user.name).toBe('Ian')
+        expect(auth.isAuthenticated).toBe(false)
     })
 
     it('login with unverified user returns verified=false', async () => {
@@ -106,20 +109,18 @@ describe('auth store', () => {
         }
     })
 
-    it('verifyEmail saves token and user', async () => {
+    it('verifyTotp saves token and user', async () => {
         mockFetch(200, {
-            message: 'Correo electrónico confirmado exitosamente.',
             token: 'auth-jwt',
             user: { id: 1, name: 'Ian', email: 'ian@example.com' },
         })
 
         const auth = useAuthStore()
-        const result = await auth.verifyEmail('verification-token', 'secret123')
+        await auth.verifyTotp('challenge-token', '123456')
 
-        expect(result.token).toBe('auth-jwt')
-        expect(result.user.email).toBe('ian@example.com')
         expect(auth.isAuthenticated).toBe(true)
-        expect(localStorage.getItem('auth_token')).toBe('auth-jwt')
+        expect(auth.currentUser?.name).toBe('Ian')
+        expect(auth.token).toBe('auth-jwt')
     })
 
     it('logout clears session', () => {
@@ -134,7 +135,7 @@ describe('auth store', () => {
 
         expect(auth.isAuthenticated).toBe(false)
         expect(auth.currentUser).toBeNull()
-        expect(localStorage.getItem('auth_token')).toBeNull()
+        expect(auth.token).toBeNull()
     })
 
     it('restores session from localStorage', () => {

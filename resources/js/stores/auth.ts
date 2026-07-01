@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
+import { useStorage } from '@vueuse/core'
 import { api } from '@/services/api'
 
 interface User {
@@ -8,11 +9,20 @@ interface User {
     email: string
 }
 
+interface LoginResponse {
+    totp_status: 'setup_required' | 'verify_required'
+    temp_token: string
+    user: User
+}
+
 export const useAuthStore = defineStore('auth', () => {
-    const token = ref<string | null>(localStorage.getItem('auth_token'))
-    const user = ref<User | null>(
-        JSON.parse(localStorage.getItem('auth_user') ?? 'null'),
-    )
+    const token = useStorage<string | null>('auth_token', null)
+    const user = useStorage<User | null>('auth_user', null, undefined, {
+        serializer: {
+            read: (v) => (v ? JSON.parse(v) : null),
+            write: (v) => JSON.stringify(v),
+        },
+    })
 
     const isAuthenticated = computed(() => token.value !== null)
     const currentUser = computed(() => user.value)
@@ -20,15 +30,11 @@ export const useAuthStore = defineStore('auth', () => {
     function setSession(newToken: string, newUser: User) {
         token.value = newToken
         user.value = newUser
-        localStorage.setItem('auth_token', newToken)
-        localStorage.setItem('auth_user', JSON.stringify(newUser))
     }
 
     function clearSession() {
         token.value = null
         user.value = null
-        localStorage.removeItem('auth_token')
-        localStorage.removeItem('auth_user')
     }
 
     async function register(
@@ -49,38 +55,50 @@ export const useAuthStore = defineStore('auth', () => {
     async function login(
         email: string,
         password: string,
-    ): Promise<{ verified: boolean; token?: string; user?: User }> {
+    ): Promise<
+        | { verified: true; token: string; user: User }
+        | { verified: false; totp_status?: string; temp_token?: string; user?: User; email?: string }
+    > {
         try {
-            const res = await api.post<{ token: string; user: User }>(
-                '/auth/login',
-                { email, password },
-            )
-            const data = res as unknown as { token: string; user: User }
-            setSession(data.token, data.user)
-            return { verified: true, token: data.token, user: data.user }
+            const res = await api.post<LoginResponse>('/auth/login', { email, password })
+            const data = res as unknown as LoginResponse
+
+            return {
+                verified: false,
+                totp_status: data.totp_status,
+                temp_token: data.temp_token,
+                user: data.user,
+            }
         } catch (err: unknown) {
             const error = err as Error & {
                 status: number
                 data: { message?: string; email?: string }
             }
             if (error.status === 403) {
-                return { verified: false }
+                return { verified: false, email: error.data?.email }
             }
             throw err
         }
     }
 
+    async function verifyTotp(tempToken: string, totpCode: string): Promise<void> {
+        const res = await api.post<{ token: string; user: User }>('/auth/totp/verify', {
+            temp_token: tempToken,
+            totp_code: totpCode,
+        })
+        const data = res as unknown as { token: string; user: User }
+        setSession(data.token, data.user)
+    }
+
     async function verifyEmail(
         token: string,
         password: string,
-    ): Promise<{ token: string; user: User }> {
-        const res = await api.post<{ token: string; user: User }>(
+    ): Promise<{ totp_status: string; temp_token: string; user: User }> {
+        const res = await api.post<{ totp_status: string; temp_token: string; user: User }>(
             '/auth/verify-email',
             { token, password },
         )
-        const data = res as unknown as { token: string; user: User }
-        setSession(data.token, data.user)
-        return { token: data.token, user: data.user }
+        return res as unknown as { totp_status: string; temp_token: string; user: User }
     }
 
     function logout() {
@@ -94,7 +112,9 @@ export const useAuthStore = defineStore('auth', () => {
         currentUser,
         register,
         login,
+        verifyTotp,
         verifyEmail,
+        setSession,
         logout,
         clearSession,
     }

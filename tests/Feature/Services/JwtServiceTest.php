@@ -215,4 +215,36 @@ class JwtServiceTest extends TestCase
 
         $this->assertSame((string) $user->id, $payload['payload']['user_id']);
     }
+
+    public function test_build_totp_challenge_token(): void
+    {
+        $token = $this->jwt->buildTotpChallengeToken('42');
+        $payload = $this->jwt->validateTotpChallengeToken($token);
+
+        $this->assertSame('totp_challenge', $payload['type']);
+        $this->assertSame('42', $payload['payload']['user_id']);
+    }
+
+    public function test_rejects_non_totp_token_in_validate(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Invalid challenge token');
+
+        $token = $this->jwt->buildEmailVerificationToken('test@test.com');
+        $this->jwt->validateTotpChallengeToken($token);
+    }
+
+    public function test_rejects_expired_totp_challenge_token(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Challenge token has expired');
+
+        $token = $this->jwt->signAndEncrypt([
+            'issued_at' => time() - 600,
+            'expires_at' => time() - 1,
+            'type' => 'totp_challenge',
+            'payload' => ['user_id' => '1'],
+        ]);
+        $this->jwt->validateTotpChallengeToken($token);
+    }
 }

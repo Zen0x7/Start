@@ -128,4 +128,31 @@ class JwtService
 
         return $payload;
     }
+
+    public function buildTotpChallengeToken(string $userId): string
+    {
+        return $this->signAndEncrypt([
+            'issued_at' => time(),
+            'expires_at' => time() + 300,
+            'type' => 'totp_challenge',
+            'payload' => [
+                'user_id' => $userId,
+            ],
+        ]);
+    }
+
+    public function validateTotpChallengeToken(string $token): array
+    {
+        $payload = $this->decryptAndVerify($token);
+
+        if (($payload['type'] ?? null) !== 'totp_challenge') {
+            throw new RuntimeException('Invalid challenge token');
+        }
+
+        if (($payload['expires_at'] ?? 0) < time()) {
+            throw new RuntimeException('Challenge token has expired');
+        }
+
+        return $payload;
+    }
 }

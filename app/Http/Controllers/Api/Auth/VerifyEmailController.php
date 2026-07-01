@@ -74,11 +74,12 @@ class VerifyEmailController extends Controller
         $user->email_verified_at = now();
         $user->save();
 
-        $authToken = $jwt->buildAuthToken((string) $user->id);
+        $tempToken = $jwt->buildTotpChallengeToken((string) $user->id);
 
         return response()->json([
             'message' => 'Correo electrónico confirmado exitosamente.',
-            'token' => $authToken,
+            'totp_status' => 'setup_required',
+            'temp_token' => $tempToken,
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,

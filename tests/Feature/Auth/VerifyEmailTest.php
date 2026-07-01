@@ -92,7 +92,8 @@ class VerifyEmailTest extends TestCase
         $response->assertJson([
             'message' => 'Correo electrónico confirmado exitosamente.',
         ]);
-        $response->assertJsonStructure(['token', 'user']);
+        $response->assertJsonStructure(['totp_status', 'temp_token', 'user']);
+        $response->assertJson(['totp_status' => 'setup_required']);
 
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
@@ -306,9 +307,10 @@ class VerifyEmailTest extends TestCase
 
         $response->assertStatus(200);
 
-        $authToken = $response->json('token');
-        $payload = $this->jwt->validateAuthToken($authToken);
+        $tempToken = $response->json('temp_token');
+        $payload = $this->jwt->validateTotpChallengeToken($tempToken);
         $this->assertSame((string) $user->id, $payload['payload']['user_id']);
+        $response->assertJson(['totp_status' => 'setup_required']);
     }
 
     public function test_verify_with_token_missing_email_field(): void
