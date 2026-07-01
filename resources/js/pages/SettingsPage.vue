@@ -234,14 +234,14 @@ async function deleteAccount() {
 
                 <div class="overflow-x-auto -mx-6 sm:mx-0">
                     <div class="min-w-[32rem] sm:min-w-0">
-                        <div v-for="(item, i) in activity" :key="i" class="flex items-center gap-2 border-b border-[#eee] py-2.5 text-sm">
+                        <div v-for="(item, i) in activity" :key="i" class="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#eee] py-2.5 text-sm">
                             <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold" :class="item.successful ? 'bg-[#f5f5f0] text-green-700' : 'bg-red-50 text-red-600'">
                                 {{ item.successful ? '✓' : '✗' }}
                             </span>
-                            <span class="shrink-0 text-xs font-semibold text-[#555] w-10">{{ item.type === 'login' ? t('activity.login') : t('activity.totp') }}</span>
-                            <span class="shrink-0 text-center text-[#999] w-4">·</span>
+                            <span class="text-xs font-semibold text-[#555]">{{ item.type === 'login' ? t('activity.login') : t('activity.totp') }}</span>
+                            <span class="text-[#999]">·</span>
                             <span class="min-w-0 flex-1 truncate text-[#111]">{{ item.device || item.ip_address || '-' }}</span>
-                            <span class="shrink-0 text-xs text-[#999] whitespace-nowrap">{{ formatDate(item.created_at) }}</span>
+                            <span class="text-xs text-[#999] whitespace-nowrap">{{ formatDate(item.created_at) }}</span>
                         </div>
                     </div>
                 </div>
