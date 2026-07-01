@@ -29,14 +29,25 @@ jobs:
                   key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
                   restore-keys: ${{ runner.os }}-composer-
 
-            - name: Install dependencies
+            - name: Install Composer deps
               run: composer install --no-progress --prefer-dist --no-interaction
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+
+            - name: Install JS deps
+              run: yarn install --frozen-lockfile
+
+            - name: Build frontend
+              run: yarn build
 
             - name: Prepare
               run: |
                   cp .env.example .env
                   php artisan key:generate --no-interaction
-                  touch database/database.sqlite
+                  touch ${{ github.workspace }}/database/database.sqlite
                   php artisan migrate --no-interaction
 
             - name: PHPUnit with coverage
