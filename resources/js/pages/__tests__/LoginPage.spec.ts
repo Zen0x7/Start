@@ -12,8 +12,16 @@ const router = createRouter({
         { path: '/register', name: 'register', component: { template: '<div>Register</div>' } },
         { path: '/totp/verify', name: 'totp-verify', component: { template: '<div>TOTP</div>' } },
         { path: '/totp/setup', name: 'totp-setup', component: { template: '<div>Setup</div>' } },
-        { path: '/email/verify', name: 'verify-email', component: { template: '<div>Verify</div>' } },
-        { path: '/forgot-password', name: 'forgot-password', component: { template: '<div>Forgot</div>' } },
+        {
+            path: '/email/verify',
+            name: 'verify-email',
+            component: { template: '<div>Verify</div>' },
+        },
+        {
+            path: '/forgot-password',
+            name: 'forgot-password',
+            component: { template: '<div>Forgot</div>' },
+        },
     ],
 })
 

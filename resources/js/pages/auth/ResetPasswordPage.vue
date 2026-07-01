@@ -59,13 +59,13 @@ async function handleSubmit() {
 
 <template>
     <template v-if="error && !email">
-        <MinimalismCard
-            :icon="Icons.lock"
-            :label="t('password.forgot_title')"
-            :message="error"
-        >
+        <MinimalismCard :icon="Icons.lock" :label="t('password.forgot_title')" :message="error">
             <template #footer>
-                <router-link :to="{ name: 'forgot-password' }" class="font-semibold text-[#111] underline hover:text-[#333]">{{ t('password.request_again') }}</router-link>
+                <router-link
+                    :to="{ name: 'forgot-password' }"
+                    class="font-semibold text-[#111] underline hover:text-[#333]"
+                    >{{ t('password.request_again') }}</router-link
+                >
             </template>
         </MinimalismCard>
     </template>
@@ -77,26 +77,41 @@ async function handleSubmit() {
             :message="t('password.reset_desc')"
         >
             <template #footer>
-                <router-link :to="{ name: 'login' }" class="font-semibold text-[#111] underline hover:text-[#333]">{{ t('auth.login') }}</router-link>
+                <router-link
+                    :to="{ name: 'login' }"
+                    class="font-semibold text-[#111] underline hover:text-[#333]"
+                    >{{ t('auth.login') }}</router-link
+                >
             </template>
         </MinimalismCard>
     </template>
 
     <template v-else>
-        <MinimalismCard
-            :icon="Icons.lock"
-            :label="t('password.reset_title')"
-        >
+        <MinimalismCard :icon="Icons.lock" :label="t('password.reset_title')">
             <p v-if="error" class="mb-2 text-sm text-[#dc2626]">{{ error }}</p>
 
             <form @submit.prevent="handleSubmit" class="space-y-4">
                 <PvFloatLabel>
-                    <PvPassword id="rp-password" input-id="rp-password" v-model="password" class="w-full" :feedback="false" toggle-mask />
+                    <PvPassword
+                        id="rp-password"
+                        input-id="rp-password"
+                        v-model="password"
+                        class="w-full"
+                        :feedback="false"
+                        toggle-mask
+                    />
                     <label for="rp-password">{{ t('auth.password') }}</label>
                 </PvFloatLabel>
 
                 <PvFloatLabel>
-                    <PvPassword id="rp-confirm" input-id="rp-confirm" v-model="passwordConfirmation" class="w-full" :feedback="false" toggle-mask />
+                    <PvPassword
+                        id="rp-confirm"
+                        input-id="rp-confirm"
+                        v-model="passwordConfirmation"
+                        class="w-full"
+                        :feedback="false"
+                        toggle-mask
+                    />
                     <label for="rp-confirm">{{ t('auth.password_confirm') }}</label>
                 </PvFloatLabel>
 
@@ -107,11 +122,20 @@ async function handleSubmit() {
                     </div>
                 </div>
 
-                <PvButton type="submit" :loading="loading" class="w-full" :label="loading ? t('password.resetting') : t('password.reset_button')" />
+                <PvButton
+                    type="submit"
+                    :loading="loading"
+                    class="w-full"
+                    :label="loading ? t('password.resetting') : t('password.reset_button')"
+                />
             </form>
 
             <template #footer>
-                <router-link :to="{ name: 'login' }" class="font-semibold text-[#111] underline hover:text-[#333]">{{ t('auth.login') }}</router-link>
+                <router-link
+                    :to="{ name: 'login' }"
+                    class="font-semibold text-[#111] underline hover:text-[#333]"
+                    >{{ t('auth.login') }}</router-link
+                >
             </template>
         </MinimalismCard>
     </template>

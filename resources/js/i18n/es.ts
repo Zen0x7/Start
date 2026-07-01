@@ -15,7 +15,8 @@ export default {
         register_link: '¿No tienes cuenta?',
         profile_updated: 'Perfil actualizado.',
         photo_updated: 'Foto de perfil actualizada.',
-        delete_confirm: 'Ingresa tu código TOTP para eliminar tu cuenta. Esta acción no se puede deshacer.',
+        delete_confirm:
+            'Ingresa tu código TOTP para eliminar tu cuenta. Esta acción no se puede deshacer.',
     },
     verify: {
         title: 'Revisa tu correo',
@@ -93,7 +94,8 @@ export default {
     },
     home: {
         welcome: 'Bienvenido',
-        description: 'Sistema de autenticación con verificación de correo electrónico y autenticación de dos factores.',
+        description:
+            'Sistema de autenticación con verificación de correo electrónico y autenticación de dos factores.',
         dashboard: 'Ir al Dashboard',
     },
     settings: {

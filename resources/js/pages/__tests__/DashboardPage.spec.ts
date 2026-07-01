@@ -30,7 +30,11 @@ afterEach(() => {
 
 describe('DashboardPage', () => {
     it('renders welcome message with user name', async () => {
-        mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ user: { avatar_thumb: '' } }) })
+        mockFetch.mockResolvedValue({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve({ user: { avatar_thumb: '' } }),
+        })
 
         const wrapper = mountWithPlugins(DashboardPage, { global: { plugins: [router] } })
         await new Promise((r) => setTimeout(r, 50))
@@ -39,7 +43,11 @@ describe('DashboardPage', () => {
     })
 
     it('shows user email', async () => {
-        mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ user: { avatar_thumb: '' } }) })
+        mockFetch.mockResolvedValue({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve({ user: { avatar_thumb: '' } }),
+        })
 
         const wrapper = mountWithPlugins(DashboardPage, { global: { plugins: [router] } })
         await new Promise((r) => setTimeout(r, 50))
@@ -48,7 +56,11 @@ describe('DashboardPage', () => {
     })
 
     it('has settings link', async () => {
-        mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ user: { avatar_thumb: '' } }) })
+        mockFetch.mockResolvedValue({
+            ok: true,
+            status: 200,
+            json: () => Promise.resolve({ user: { avatar_thumb: '' } }),
+        })
 
         const wrapper = mountWithPlugins(DashboardPage, { global: { plugins: [router] } })
         await new Promise((r) => setTimeout(r, 50))

@@ -12,7 +12,7 @@ defineProps<{
     <main class="mx-auto flex min-h-screen max-w-md items-center px-4">
         <div
             class="w-full border-2 border-[#111] bg-white p-8 text-center"
-            style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)"
+            style="box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06)"
         >
             <div
                 v-if="icon"
@@ -28,10 +28,7 @@ defineProps<{
                 {{ label }}
             </h1>
 
-            <p
-                v-if="message"
-                class="mb-6 text-sm leading-relaxed text-[#555]"
-            >
+            <p v-if="message" class="mb-6 text-sm leading-relaxed text-[#555]">
                 {{ message }}
             </p>
 
@@ -39,10 +36,7 @@ defineProps<{
                 <slot />
             </div>
 
-            <div
-                v-if="$slots.footer"
-                class="mt-6 text-xs text-[#999]"
-            >
+            <div v-if="$slots.footer" class="mt-6 text-xs text-[#999]">
                 <slot name="footer" />
             </div>
         </div>

@@ -65,7 +65,11 @@ describe('TotpVerifyPage', () => {
         mockFetch.mockResolvedValue({
             ok: true,
             status: 200,
-            json: () => Promise.resolve({ token: 'auth-jwt', user: { id: 1, name: 'Ian', email: 'ian@test.com' } }),
+            json: () =>
+                Promise.resolve({
+                    token: 'auth-jwt',
+                    user: { id: 1, name: 'Ian', email: 'ian@test.com' },
+                }),
         })
 
         const wrapper = mountWithPlugins(TotpVerifyPage, {

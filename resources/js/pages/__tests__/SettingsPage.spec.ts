@@ -31,8 +31,15 @@ afterEach(() => {
 
 describe('SettingsPage', () => {
     it('renders profile section with user data', async () => {
-        mockFetch
-            .mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ user: { name: 'Ian', email: 'ian@test.com', avatar: '', avatar_thumb: '' }, totp_devices: [] }) })
+        mockFetch.mockResolvedValue({
+            ok: true,
+            status: 200,
+            json: () =>
+                Promise.resolve({
+                    user: { name: 'Ian', email: 'ian@test.com', avatar: '', avatar_thumb: '' },
+                    totp_devices: [],
+                }),
+        })
 
         const wrapper = mountWithPlugins(SettingsPage, { global: { plugins: [router] } })
         await new Promise((r) => setTimeout(r, 500))
@@ -42,15 +49,38 @@ describe('SettingsPage', () => {
 
     it('shows TOTP devices when present', async () => {
         mockFetch
-            .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ user: { avatar_thumb: '' } }) })
-            .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ user: { name: 'Ian', email: 'ian@test.com', avatar: '', avatar_thumb: '' }, totp_devices: [{ id: 1, label: 'My Phone', created_at: new Date().toISOString(), last_used_at: null }] }) })
-            .mockResolvedValueOnce({ ok: true, status: 200, json: () => Promise.resolve({ activity: [] }) })
+            .mockResolvedValueOnce({
+                ok: true,
+                status: 200,
+                json: () => Promise.resolve({ user: { avatar_thumb: '' } }),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                status: 200,
+                json: () =>
+                    Promise.resolve({
+                        user: { name: 'Ian', email: 'ian@test.com', avatar: '', avatar_thumb: '' },
+                        totp_devices: [
+                            {
+                                id: 1,
+                                label: 'My Phone',
+                                created_at: new Date().toISOString(),
+                                last_used_at: null,
+                            },
+                        ],
+                    }),
+            })
+            .mockResolvedValueOnce({
+                ok: true,
+                status: 200,
+                json: () => Promise.resolve({ activity: [] }),
+            })
 
         const wrapper = mountWithPlugins(SettingsPage, { global: { plugins: [router] } })
         await new Promise((r) => setTimeout(r, 50))
 
         const buttons = wrapper.findAll('button')
-        const totpBtn = [...buttons].find(b => b.text().includes('Keys'))
+        const totpBtn = [...buttons].find((b) => b.text().includes('Keys'))
         if (totpBtn) await totpBtn.trigger('click')
         await new Promise((r) => setTimeout(r, 50))
 

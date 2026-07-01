@@ -8,7 +8,11 @@ const router = createRouter({
     routes: [
         { path: '/reset-password/:token', name: 'reset-password', component: ResetPasswordPage },
         { path: '/login', name: 'login', component: { template: '<div>Login</div>' } },
-        { path: '/forgot-password', name: 'forgot-password', component: { template: '<div>Forgot</div>' } },
+        {
+            path: '/forgot-password',
+            name: 'forgot-password',
+            component: { template: '<div>Forgot</div>' },
+        },
     ],
 })
 

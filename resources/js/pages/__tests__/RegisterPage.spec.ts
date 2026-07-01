@@ -10,7 +10,11 @@ const router = createRouter({
         { path: '/', name: 'home', component: { template: '<div>Home</div>' } },
         { path: '/register', name: 'register', component: { template: '<div>Register</div>' } },
         { path: '/login', name: 'login', component: { template: '<div>Login</div>' } },
-        { path: '/email/verify', name: 'verify-email', component: { template: '<div>Verify</div>' } },
+        {
+            path: '/email/verify',
+            name: 'verify-email',
+            component: { template: '<div>Verify</div>' },
+        },
     ],
 })
 

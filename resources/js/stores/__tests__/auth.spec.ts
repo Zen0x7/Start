@@ -36,12 +36,7 @@ describe('auth store', () => {
         })
 
         const auth = useAuthStore()
-        const result = await auth.register(
-            'Ian',
-            'ian@example.com',
-            'secret123',
-            'secret123',
-        )
+        const result = await auth.register('Ian', 'ian@example.com', 'secret123', 'secret123')
 
         expect(result.email).toBe('ian@example.com')
         expect(auth.isAuthenticated).toBe(false)
@@ -83,8 +78,7 @@ describe('auth store', () => {
 
     it('login with unverified user returns email', async () => {
         mockFetch(403, {
-            message:
-                'Antes de continuar deberás confirmar tu correo electrónico.',
+            message: 'Antes de continuar deberás confirmar tu correo electrónico.',
         })
 
         const auth = useAuthStore()
@@ -129,10 +123,7 @@ describe('auth store', () => {
 
     it('logout clears session', () => {
         localStorage.setItem('auth_token', 'some-token')
-        localStorage.setItem(
-            'auth_user',
-            JSON.stringify({ id: 1, name: 'Ian', email: 'i@i.com' }),
-        )
+        localStorage.setItem('auth_user', JSON.stringify({ id: 1, name: 'Ian', email: 'i@i.com' }))
 
         const auth = useAuthStore()
         auth.logout()
@@ -144,10 +135,7 @@ describe('auth store', () => {
 
     it('restores session from localStorage', () => {
         localStorage.setItem('auth_token', 'persisted-token')
-        localStorage.setItem(
-            'auth_user',
-            JSON.stringify({ id: 1, name: 'Ian', email: 'i@i.com' }),
-        )
+        localStorage.setItem('auth_user', JSON.stringify({ id: 1, name: 'Ian', email: 'i@i.com' }))
 
         const auth = useAuthStore()
         expect(auth.isAuthenticated).toBe(true)

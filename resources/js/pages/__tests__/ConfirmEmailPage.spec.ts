@@ -101,12 +101,13 @@ describe('ConfirmEmailPage', () => {
             .mockResolvedValueOnce({
                 ok: true,
                 status: 200,
-                json: () => Promise.resolve({
-                    message: 'Email confirmed successfully.',
-                    totp_status: 'setup_required',
-                    temp_token: 'challenge',
-                    user: { id: 1, name: 'Test', email: 'test@example.com' },
-                }),
+                json: () =>
+                    Promise.resolve({
+                        message: 'Email confirmed successfully.',
+                        totp_status: 'setup_required',
+                        temp_token: 'challenge',
+                        user: { id: 1, name: 'Test', email: 'test@example.com' },
+                    }),
             })
 
         await router.push('/email/verify/valid-token')

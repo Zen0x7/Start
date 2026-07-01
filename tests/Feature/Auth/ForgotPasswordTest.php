@@ -100,7 +100,7 @@ class ForgotPasswordTest extends TestCase
             ],
         ]);
 
-        $response = $this->getJson('/api/auth/password/reset/' . urlencode($token));
+        $response = $this->getJson('/api/auth/password/reset/'.urlencode($token));
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['token']);
@@ -111,7 +111,7 @@ class ForgotPasswordTest extends TestCase
         $user = User::factory()->create(['name' => 'Test User', 'locale' => 'en']);
         $token = $this->jwt->buildEmailVerificationToken($user->email);
 
-        $notification = (new \App\Notifications\ResetPasswordNotification($token))->locale($user->locale);
+        $notification = (new ResetPasswordNotification($token))->locale($user->locale);
         $mail = $notification->toMail($user);
 
         $this->assertSame('Reset your password', $mail->subject);
@@ -121,7 +121,7 @@ class ForgotPasswordTest extends TestCase
     {
         $token = $this->jwt->buildEmailVerificationToken('nobody@example.com');
 
-        $response = $this->getJson('/api/auth/password/reset/' . urlencode($token));
+        $response = $this->getJson('/api/auth/password/reset/'.urlencode($token));
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['token']);

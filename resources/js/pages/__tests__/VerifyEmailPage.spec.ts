@@ -9,7 +9,11 @@ const router = createRouter({
     routes: [
         { path: '/', name: 'home', component: { template: '<div>Home</div>' } },
         { path: '/register', name: 'register', component: { template: '<div>Register</div>' } },
-        { path: '/email/verify', name: 'verify-email', component: { template: '<div>Verify</div>' } },
+        {
+            path: '/email/verify',
+            name: 'verify-email',
+            component: { template: '<div>Verify</div>' },
+        },
     ],
 })
 
@@ -30,9 +34,7 @@ describe('VerifyEmailPage', () => {
         const wrapper = mountWithPlugins(VerifyEmailPage, {
             global: { plugins: [router] },
         })
-        expect(wrapper.text()).toContain(
-            'We sent a confirmation link to',
-        )
+        expect(wrapper.text()).toContain('We sent a confirmation link to')
     })
 
     it('renders resend button', () => {

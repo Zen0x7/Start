@@ -6,9 +6,7 @@ import App from '@/App.vue'
 
 const router = createRouter({
     history: createWebHistory(),
-    routes: [
-        { path: '/', name: 'home', component: { template: '<div>Home</div>' } },
-    ],
+    routes: [{ path: '/', name: 'home', component: { template: '<div>Home</div>' } }],
 })
 
 const i18n = createI18n({

@@ -53,13 +53,14 @@ export const useAuthStore = defineStore('auth', () => {
         return { email: (res as unknown as { email: string }).email ?? email }
     }
 
-    type LoginSuccess = { totp_status: 'setup_required' | 'verify_required'; temp_token: string; user: User }
+    type LoginSuccess = {
+        totp_status: 'setup_required' | 'verify_required'
+        temp_token: string
+        user: User
+    }
     type LoginUnverified = { email: string }
 
-    async function login(
-        email: string,
-        password: string,
-    ): Promise<LoginSuccess | LoginUnverified> {
+    async function login(email: string, password: string): Promise<LoginSuccess | LoginUnverified> {
         try {
             const res = await api.post<LoginResponse>('/auth/login', { email, password })
             const data = res as unknown as LoginResponse

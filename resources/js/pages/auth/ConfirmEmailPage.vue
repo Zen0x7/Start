@@ -57,26 +57,19 @@ async function handleSubmit() {
 
 <template>
     <template v-if="initialError && !email && !loading">
-        <MinimalismCard
-            :icon="Icons.mail"
-            :label="t('verify.title')"
-            :message="initialError"
-        >
+        <MinimalismCard :icon="Icons.mail" :label="t('verify.title')" :message="initialError">
             <template #footer>
                 <router-link
                     :to="{ name: 'register' }"
                     class="font-semibold text-[#111] underline hover:text-[#333]"
-                >{{ t('verify.create_another') }}</router-link>
+                    >{{ t('verify.create_another') }}</router-link
+                >
             </template>
         </MinimalismCard>
     </template>
 
     <template v-else-if="verified">
-        <MinimalismCard
-            :icon="Icons.check"
-            label="Status"
-            :message="t('verify.confirmed')"
-        >
+        <MinimalismCard :icon="Icons.check" label="Status" :message="t('verify.confirmed')">
             <p class="text-sm text-[#555]">{{ t('verify.redirecting_setup') }}</p>
         </MinimalismCard>
     </template>
@@ -90,20 +83,35 @@ async function handleSubmit() {
             <form @submit.prevent="handleSubmit" class="text-left">
                 <div>
                     <PvFloatLabel>
-                        <PvPassword input-id="password" v-model="password" class="w-full" :class="{ 'p-invalid': hasError('password') }" :feedback="false" toggle-mask />
+                        <PvPassword
+                            input-id="password"
+                            v-model="password"
+                            class="w-full"
+                            :class="{ 'p-invalid': hasError('password') }"
+                            :feedback="false"
+                            toggle-mask
+                        />
                         <label for="password">{{ t('auth.password') }}</label>
                     </PvFloatLabel>
-                    <small v-if="hasError('password')" class="text-[#dc2626]">{{ fieldError('password') }}</small>
+                    <small v-if="hasError('password')" class="text-[#dc2626]">{{
+                        fieldError('password')
+                    }}</small>
                 </div>
 
-                <PvButton type="submit" :loading="loading" class="w-full" :label="loading ? t('verify.confirming') : t('verify.confirm_button')" />
+                <PvButton
+                    type="submit"
+                    :loading="loading"
+                    class="w-full"
+                    :label="loading ? t('verify.confirming') : t('verify.confirm_button')"
+                />
             </form>
 
             <template #footer>
                 <router-link
                     :to="{ name: 'register' }"
                     class="font-semibold text-[#111] underline hover:text-[#333]"
-                >{{ t('verify.create_another') }}</router-link>
+                    >{{ t('verify.create_another') }}</router-link
+                >
             </template>
         </MinimalismCard>
     </template>

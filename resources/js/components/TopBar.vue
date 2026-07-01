@@ -70,7 +70,8 @@ const languages = [
                 <router-link
                     :to="{ name: 'dashboard' }"
                     class="text-lg font-bold text-[#111] hover:text-[#333]"
-                >Start</router-link>
+                    >Start</router-link
+                >
             </div>
 
             <div class="relative">
@@ -104,11 +105,13 @@ const languages = [
                     <div
                         v-if="open"
                         class="absolute right-0 top-full z-50 mt-1 w-48 border-2 border-[#111] bg-white shadow"
-                        style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)"
+                        style="box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06)"
                         role="menu"
                     >
                         <div class="border-b border-[#eee] px-4 py-3">
-                            <p class="text-sm font-semibold text-[#111]">{{ auth.currentUser?.name }}</p>
+                            <p class="text-sm font-semibold text-[#111]">
+                                {{ auth.currentUser?.name }}
+                            </p>
                             <p class="text-xs text-[#555]">{{ auth.currentUser?.email }}</p>
                         </div>
 
@@ -128,7 +131,9 @@ const languages = [
                                 @click.stop="langOpen = !langOpen"
                             >
                                 <Globe class="h-4 w-4" />
-                                <span class="flex-1 text-left">{{ locale === 'es' ? 'Idioma' : 'Language' }}</span>
+                                <span class="flex-1 text-left">{{
+                                    locale === 'es' ? 'Idioma' : 'Language'
+                                }}</span>
                                 <ChevronDown class="h-3 w-3" :class="{ 'rotate-180': langOpen }" />
                             </button>
 
@@ -137,7 +142,11 @@ const languages = [
                                     v-for="lang in languages"
                                     :key="lang.code"
                                     class="flex w-full items-center gap-3 px-4 py-2.5 pl-10 text-sm transition-colors hover:bg-[#f5f5f0] focus:outline-none"
-                                    :class="locale === lang.code ? 'font-semibold text-[#111]' : 'text-[#555]'"
+                                    :class="
+                                        locale === lang.code
+                                            ? 'font-semibold text-[#111]'
+                                            : 'text-[#555]'
+                                    "
                                     role="menuitem"
                                     @click="setLang(lang.code)"
                                 >
@@ -166,7 +175,9 @@ const languages = [
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-    transition: opacity 0.15s ease, transform 0.15s ease;
+    transition:
+        opacity 0.15s ease,
+        transform 0.15s ease;
 }
 .fade-enter-from,
 .fade-leave-to {

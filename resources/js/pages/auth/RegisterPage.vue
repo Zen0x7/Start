@@ -22,7 +22,12 @@ async function handleSubmit() {
     loading.value = true
 
     try {
-        const { email: registeredEmail } = await auth.register(name.value, email.value, password.value, passwordConfirmation.value)
+        const { email: registeredEmail } = await auth.register(
+            name.value,
+            email.value,
+            password.value,
+            passwordConfirmation.value,
+        )
         router.push({ name: 'verify-email', query: { email: registeredEmail } })
     } catch (err: unknown) {
         setErrors(err)
@@ -33,49 +38,87 @@ async function handleSubmit() {
 </script>
 
 <template>
-    <MinimalismCard
-        :icon="Icons.person"
-        :label="t('auth.register_title')"
-    >
+    <MinimalismCard :icon="Icons.person" :label="t('auth.register_title')">
         <form @submit.prevent="handleSubmit" class="space-y-7 text-left">
             <div>
                 <PvFloatLabel>
-                    <PvInputText id="name" v-model="name" class="w-full" :class="{ 'p-invalid': hasError('name') }" />
+                    <PvInputText
+                        id="name"
+                        v-model="name"
+                        class="w-full"
+                        :class="{ 'p-invalid': hasError('name') }"
+                    />
                     <label for="name">{{ t('auth.name') }}</label>
                 </PvFloatLabel>
-                <small v-if="hasError('name')" class="text-[#dc2626]">{{ fieldError('name') }}</small>
+                <small v-if="hasError('name')" class="text-[#dc2626]">{{
+                    fieldError('name')
+                }}</small>
             </div>
 
             <div>
                 <PvFloatLabel>
-                    <PvInputText id="email" v-model="email" class="w-full" :class="{ 'p-invalid': hasError('email') }" />
+                    <PvInputText
+                        id="email"
+                        v-model="email"
+                        class="w-full"
+                        :class="{ 'p-invalid': hasError('email') }"
+                    />
                     <label for="email">{{ t('auth.email') }}</label>
                 </PvFloatLabel>
-                <small v-if="hasError('email')" class="text-[#dc2626]">{{ fieldError('email') }}</small>
+                <small v-if="hasError('email')" class="text-[#dc2626]">{{
+                    fieldError('email')
+                }}</small>
             </div>
 
             <div>
                 <PvFloatLabel>
-                    <PvPassword input-id="password" v-model="password" class="w-full" :class="{ 'p-invalid': hasError('password') }" :feedback="false" toggle-mask />
+                    <PvPassword
+                        input-id="password"
+                        v-model="password"
+                        class="w-full"
+                        :class="{ 'p-invalid': hasError('password') }"
+                        :feedback="false"
+                        toggle-mask
+                    />
                     <label for="password">{{ t('auth.password') }}</label>
                 </PvFloatLabel>
-                <small v-if="hasError('password')" class="text-[#dc2626]">{{ fieldError('password') }}</small>
+                <small v-if="hasError('password')" class="text-[#dc2626]">{{
+                    fieldError('password')
+                }}</small>
             </div>
 
             <div>
                 <PvFloatLabel>
-                    <PvPassword input-id="password-confirmation" v-model="passwordConfirmation" class="w-full" :class="{ 'p-invalid': hasError('password') }" :feedback="false" toggle-mask />
+                    <PvPassword
+                        input-id="password-confirmation"
+                        v-model="passwordConfirmation"
+                        class="w-full"
+                        :class="{ 'p-invalid': hasError('password') }"
+                        :feedback="false"
+                        toggle-mask
+                    />
                     <label for="password-confirmation">{{ t('auth.password_confirm') }}</label>
                 </PvFloatLabel>
-                <small v-if="hasError('password')" class="text-[#dc2626]">{{ fieldError('password') }}</small>
+                <small v-if="hasError('password')" class="text-[#dc2626]">{{
+                    fieldError('password')
+                }}</small>
             </div>
 
-            <PvButton type="submit" :loading="loading" class="w-full" :label="loading ? t('auth.registering') : t('auth.register')" />
+            <PvButton
+                type="submit"
+                :loading="loading"
+                class="w-full"
+                :label="loading ? t('auth.registering') : t('auth.register')"
+            />
         </form>
 
         <template #footer>
             {{ t('auth.login_link') }}
-            <router-link :to="{ name: 'login' }" class="font-semibold text-[#111] underline hover:text-[#333]">{{ t('auth.login') }}</router-link>
+            <router-link
+                :to="{ name: 'login' }"
+                class="font-semibold text-[#111] underline hover:text-[#333]"
+                >{{ t('auth.login') }}</router-link
+            >
         </template>
     </MinimalismCard>
 </template>

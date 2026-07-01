@@ -30,10 +30,9 @@ async function resendEmail() {
     resendError.value = ''
 
     try {
-        const res = await api.post<{ message: string }>(
-            '/auth/resend-verification',
-            { email: email.value },
-        )
+        const res = await api.post<{ message: string }>('/auth/resend-verification', {
+            email: email.value,
+        })
         resendMessage.value = res.message || t('verify.resent')
     } catch (err: unknown) {
         const e = err as Error & { data?: { message?: string } }
@@ -50,17 +49,11 @@ async function resendEmail() {
         :label="t('verify.title')"
         :message="t('verify.waiting', { email })"
     >
-        <p
-            v-if="resendMessage"
-            class="mb-2 text-sm text-[#555]"
-        >
+        <p v-if="resendMessage" class="mb-2 text-sm text-[#555]">
             {{ resendMessage }}
         </p>
 
-        <p
-            v-if="resendError"
-            class="mb-2 text-sm text-[#dc2626]"
-        >
+        <p v-if="resendError" class="mb-2 text-sm text-[#dc2626]">
             {{ resendError }}
         </p>
 
@@ -76,7 +69,8 @@ async function resendEmail() {
             <router-link
                 :to="{ name: 'register' }"
                 class="font-semibold text-[#111] underline hover:text-[#333]"
-            >{{ t('verify.create_another') }}</router-link>
+                >{{ t('verify.create_another') }}</router-link
+            >
         </template>
     </MinimalismCard>
 </template>

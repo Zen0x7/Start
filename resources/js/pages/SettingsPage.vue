@@ -28,7 +28,9 @@ const email = ref('')
 const avatar = ref('')
 const saving = ref(false)
 
-const totpDevices = ref<{ id: number; label: string; created_at: string; last_used_at: string | null }[]>([])
+const totpDevices = ref<
+    { id: number; label: string; created_at: string; last_used_at: string | null }[]
+>([])
 const deleteCode = ref('')
 const showDeleteConfirm = ref(false)
 
@@ -50,16 +52,26 @@ const activity = ref<ActivityItem[]>([])
 
 function formatDate(dateStr: string): string {
     const d = new Date(dateStr)
-    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    return (
+        d.toLocaleDateString() +
+        ' ' +
+        d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    )
 }
 
 onMounted(async () => {
     try {
         const [profileRes, activityRes] = await Promise.all([
-            api.get<{ user: { name: string; email: string; avatar: string }; totp_devices: typeof totpDevices.value }>('/auth/profile'),
+            api.get<{
+                user: { name: string; email: string; avatar: string }
+                totp_devices: typeof totpDevices.value
+            }>('/auth/profile'),
             api.get<{ activity: ActivityItem[] }>('/auth/activity'),
         ])
-        const data = profileRes as unknown as { user: { name: string; email: string; avatar: string }; totp_devices: typeof totpDevices.value }
+        const data = profileRes as unknown as {
+            user: { name: string; email: string; avatar: string }
+            totp_devices: typeof totpDevices.value
+        }
         const act = activityRes as unknown as { activity: ActivityItem[] }
         name.value = data.user.name
         email.value = data.user.email
@@ -74,9 +86,19 @@ onMounted(async () => {
 async function saveProfile() {
     saving.value = true
     try {
-        const res = await api.put<{ email_changed: boolean; user: { name: string; email: string; avatar: string } }>('/auth/profile', { name: name.value, email: email.value })
-        const data = res as unknown as { email_changed: boolean; user: { name: string; email: string; avatar: string } }
-        auth.setSession(auth.token!, { id: auth.currentUser!.id, name: data.user.name, email: data.user.email })
+        const res = await api.put<{
+            email_changed: boolean
+            user: { name: string; email: string; avatar: string }
+        }>('/auth/profile', { name: name.value, email: email.value })
+        const data = res as unknown as {
+            email_changed: boolean
+            user: { name: string; email: string; avatar: string }
+        }
+        auth.setSession(auth.token!, {
+            id: auth.currentUser!.id,
+            name: data.user.name,
+            email: data.user.email,
+        })
         toast.add({ severity: 'success', summary: t('auth.profile_updated'), life: 3000 })
         if (data.email_changed) {
             auth.clearSession()
@@ -84,7 +106,11 @@ async function saveProfile() {
         }
     } catch (err: unknown) {
         const e = err as Error & { data?: { message?: string } }
-        toast.add({ severity: 'error', summary: e.data?.message || t('errors.generic'), life: 5000 })
+        toast.add({
+            severity: 'error',
+            summary: e.data?.message || t('errors.generic'),
+            life: 5000,
+        })
     } finally {
         saving.value = false
     }
@@ -98,7 +124,10 @@ async function handlePhoto(e: Event) {
     form.append('photo', input.files[0])
 
     try {
-        const res = await api.post<{ avatar: string }>('/auth/profile/photo', form as unknown as Record<string, unknown>)
+        const res = await api.post<{ avatar: string }>(
+            '/auth/profile/photo',
+            form as unknown as Record<string, unknown>,
+        )
         const data = res as unknown as { avatar: string }
         avatar.value = data.avatar
         toast.add({ severity: 'success', summary: t('auth.photo_updated'), life: 3000 })
@@ -116,9 +145,16 @@ function promptRemoveDevice(device: { id: number; label: string }) {
 async function confirmRemoveDevice() {
     if (!removeTarget.value) return
     try {
-        const res = await api.post('/auth/totp/devices/delete', { device_id: removeTarget.value.id, totp_code: removeCode.value })
-        totpDevices.value = totpDevices.value.filter(d => d.id !== removeTarget.value!.id)
-        toast.add({ severity: 'success', summary: (res as unknown as { message: string }).message || t('totp.device_removed'), life: 3000 })
+        const res = await api.post('/auth/totp/devices/delete', {
+            device_id: removeTarget.value.id,
+            totp_code: removeCode.value,
+        })
+        totpDevices.value = totpDevices.value.filter((d) => d.id !== removeTarget.value!.id)
+        toast.add({
+            severity: 'success',
+            summary: (res as unknown as { message: string }).message || t('totp.device_removed'),
+            life: 3000,
+        })
     } catch {
         toast.add({ severity: 'error', summary: t('errors.generic'), life: 5000 })
     } finally {
@@ -146,11 +182,14 @@ async function deleteAccount() {
             <!-- Tabs -->
             <div class="mb-6 flex flex-wrap gap-2">
                 <button
-                    v-for="opt in tabs" :key="opt.value"
+                    v-for="opt in tabs"
+                    :key="opt.value"
                     class="inline-flex items-center gap-2 border-2 px-4 py-2 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#111]"
-                    :class="section === opt.value
-                        ? 'border-[#111] bg-[#111] text-white'
-                        : 'border-[#ddd] bg-white text-[#555] hover:border-[#999]'"
+                    :class="
+                        section === opt.value
+                            ? 'border-[#111] bg-[#111] text-white'
+                            : 'border-[#ddd] bg-white text-[#555] hover:border-[#999]'
+                    "
                     @click="section = opt.value as typeof section"
                 >
                     <component :is="opt.icon" class="h-4 w-4" />
@@ -159,12 +198,26 @@ async function deleteAccount() {
             </div>
 
             <!-- Profile -->
-            <div v-if="section === 'profile'" class="border-2 border-[#111] bg-white p-6 sm:p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
-                <h2 class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#999]">{{ t('settings.profile') }}</h2>
+            <div
+                v-if="section === 'profile'"
+                class="border-2 border-[#111] bg-white p-6 sm:p-8"
+                style="box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06)"
+            >
+                <h2
+                    class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#999]"
+                >
+                    {{ t('settings.profile') }}
+                </h2>
 
                 <div class="mb-10 flex flex-wrap items-center gap-4">
-                    <img :src="avatar" alt="Avatar" class="h-16 w-16 border-2 border-[#111] object-cover" />
-                    <label class="cursor-pointer border-2 border-[#111] px-4 py-2 text-sm font-semibold text-[#555] hover:bg-[#f5f5f0]">
+                    <img
+                        :src="avatar"
+                        alt="Avatar"
+                        class="h-16 w-16 border-2 border-[#111] object-cover"
+                    />
+                    <label
+                        class="cursor-pointer border-2 border-[#111] px-4 py-2 text-sm font-semibold text-[#555] hover:bg-[#f5f5f0]"
+                    >
                         {{ t('settings.upload_photo') }}
                         <input type="file" accept="image/*" class="hidden" @change="handlePhoto" />
                     </label>
@@ -183,74 +236,151 @@ async function deleteAccount() {
                             <label for="s-email">{{ t('auth.email') }}</label>
                         </PvFloatLabel>
                     </div>
-                    <PvButton :loading="saving" class="w-full" @click="saveProfile">{{ saving ? t('settings.saving') : t('settings.save') }}</PvButton>
+                    <PvButton :loading="saving" class="w-full" @click="saveProfile">{{
+                        saving ? t('settings.saving') : t('settings.save')
+                    }}</PvButton>
                 </div>
             </div>
 
             <!-- TOTP Devices -->
-            <div v-if="section === 'totp'" class="border-2 border-[#111] bg-white p-6 sm:p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
-                <h2 class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#999]">{{ t('settings.totp_devices') }}</h2>
+            <div
+                v-if="section === 'totp'"
+                class="border-2 border-[#111] bg-white p-6 sm:p-8"
+                style="box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06)"
+            >
+                <h2
+                    class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#999]"
+                >
+                    {{ t('settings.totp_devices') }}
+                </h2>
 
                 <div v-if="totpDevices.length === 0" class="py-8 text-center text-sm text-[#555]">
                     {{ t('settings.no_devices') }}
                 </div>
 
-                <div v-for="device in totpDevices" :key="device.id" class="mb-3 flex items-center justify-between border-2 border-[#ddd] p-4">
+                <div
+                    v-for="device in totpDevices"
+                    :key="device.id"
+                    class="mb-3 flex items-center justify-between border-2 border-[#ddd] p-4"
+                >
                     <div class="min-w-0 flex-1">
                         <p class="truncate font-semibold text-[#111]">{{ device.label }}</p>
-                        <p class="text-xs text-[#999]">{{ t('settings.added') }} {{ new Date(device.created_at).toLocaleDateString() }}</p>
+                        <p class="text-xs text-[#999]">
+                            {{ t('settings.added') }}
+                            {{ new Date(device.created_at).toLocaleDateString() }}
+                        </p>
                     </div>
-                    <PvButton severity="secondary" class="ml-3 shrink-0" :disabled="totpDevices.length <= 1" @click="promptRemoveDevice(device)">{{ t('settings.remove') }}</PvButton>
+                    <PvButton
+                        severity="secondary"
+                        class="ml-3 shrink-0"
+                        :disabled="totpDevices.length <= 1"
+                        @click="promptRemoveDevice(device)"
+                        >{{ t('settings.remove') }}</PvButton
+                    >
                 </div>
 
-                <router-link :to="{ name: 'totp-setup' }" class="mt-4 inline-block border-2 border-[#111] px-4 py-2 text-sm font-semibold text-[#555] hover:bg-[#f5f5f0]">
+                <router-link
+                    :to="{ name: 'totp-setup' }"
+                    class="mt-4 inline-block border-2 border-[#111] px-4 py-2 text-sm font-semibold text-[#555] hover:bg-[#f5f5f0]"
+                >
                     {{ t('settings.add_device') }}
                 </router-link>
             </div>
 
             <!-- Danger Zone -->
-            <div v-if="section === 'danger'" class="border-2 border-[#dc2626] bg-white p-6 sm:p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
-                <h2 class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#dc2626]">{{ t('settings.danger') }}</h2>
+            <div
+                v-if="section === 'danger'"
+                class="border-2 border-[#dc2626] bg-white p-6 sm:p-8"
+                style="box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06)"
+            >
+                <h2
+                    class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#dc2626]"
+                >
+                    {{ t('settings.danger') }}
+                </h2>
                 <p class="mb-4 text-sm text-[#555]">{{ t('auth.delete_confirm') }}</p>
 
                 <div v-if="!showDeleteConfirm">
-                    <PvButton severity="secondary" class="border-2 border-[#dc2626] text-[#dc2626]" @click="showDeleteConfirm = true">{{ t('settings.delete_account') }}</PvButton>
+                    <PvButton
+                        severity="secondary"
+                        class="border-2 border-[#dc2626] text-[#dc2626]"
+                        @click="showDeleteConfirm = true"
+                        >{{ t('settings.delete_account') }}</PvButton
+                    >
                 </div>
 
                 <div v-else class="space-y-4">
                     <PvInputOtp v-model="deleteCode" :length="6" integer-only />
                     <div class="flex gap-3">
-                        <PvButton severity="secondary" @click="showDeleteConfirm = false">{{ t('settings.cancel') }}</PvButton>
-                        <PvButton class="border-2 border-[#dc2626] bg-[#dc2626] text-white" @click="deleteAccount">{{ t('settings.confirm_deletion') }}</PvButton>
+                        <PvButton severity="secondary" @click="showDeleteConfirm = false">{{
+                            t('settings.cancel')
+                        }}</PvButton>
+                        <PvButton
+                            class="border-2 border-[#dc2626] bg-[#dc2626] text-white"
+                            @click="deleteAccount"
+                            >{{ t('settings.confirm_deletion') }}</PvButton
+                        >
                     </div>
                 </div>
             </div>
 
             <!-- Activity -->
-            <div v-if="section === 'activity'" class="border-2 border-[#111] bg-white p-6 sm:p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
-                <h2 class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#999]">{{ t('activity.recent') }}</h2>
+            <div
+                v-if="section === 'activity'"
+                class="border-2 border-[#111] bg-white p-6 sm:p-8"
+                style="box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06)"
+            >
+                <h2
+                    class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#999]"
+                >
+                    {{ t('activity.recent') }}
+                </h2>
 
-                <div v-if="activity.length === 0" class="py-8 text-center text-sm text-[#555]">{{ t('settings.no_activity') }}</div>
+                <div v-if="activity.length === 0" class="py-8 text-center text-sm text-[#555]">
+                    {{ t('settings.no_activity') }}
+                </div>
 
                 <div class="overflow-x-auto -mx-6 sm:mx-0">
                     <div class="min-w-[32rem] sm:min-w-0">
-                        <div v-for="(item, i) in activity" :key="i" class="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#eee] py-2.5 text-sm">
-                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold" :class="item.successful ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-600'">
+                        <div
+                            v-for="(item, i) in activity"
+                            :key="i"
+                            class="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#eee] py-2.5 text-sm"
+                        >
+                            <span
+                                class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold"
+                                :class="
+                                    item.successful
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-red-50 text-red-600'
+                                "
+                            >
                                 <span v-if="item.successful && item.type === 'login'">→</span>
                                 <span v-else-if="item.successful && item.type === 'totp'">✓</span>
                                 <span v-else>✗</span>
                             </span>
-                            <span v-if="item.type === 'login'" class="text-xs font-semibold text-[#555]">
+                            <span
+                                v-if="item.type === 'login'"
+                                class="text-xs font-semibold text-[#555]"
+                            >
                                 {{ item.successful ? 'Login' : 'Login failed' }}
-                                <span v-if="item.ip_address" class="font-normal text-[#999]">· {{ item.ip_address }}</span>
+                                <span v-if="item.ip_address" class="font-normal text-[#999]"
+                                    >· {{ item.ip_address }}</span
+                                >
                             </span>
                             <span v-else class="text-xs font-semibold text-[#555]">
                                 TOTP
-                                <span v-if="item.device" class="font-normal text-[#999]">· {{ item.device }}</span>
+                                <span v-if="item.device" class="font-normal text-[#999]"
+                                    >· {{ item.device }}</span
+                                >
                             </span>
                             <span class="hidden sm:inline text-[#999]">·</span>
-                            <span class="hidden sm:inline flex-1 truncate text-[#111]">{{ item.user_agent ? item.user_agent.split('/')[0] : '' }}</span>
-                            <span class="text-xs text-[#999] whitespace-nowrap">{{ formatDate(item.created_at) }}</span>
+                            <span class="hidden sm:inline flex-1 truncate text-[#111]">{{
+                                item.user_agent ? item.user_agent.split('/')[0] : ''
+                            }}</span>
+                            <span class="text-xs text-[#999] whitespace-nowrap">{{
+                                formatDate(item.created_at)
+                            }}</span>
                         </div>
                     </div>
                 </div>
@@ -265,17 +395,32 @@ async function deleteAccount() {
             aria-modal="true"
             @click.self="showRemoveModal = false"
         >
-            <div class="mx-4 w-full max-w-sm border-2 border-[#111] bg-white p-6" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+            <div
+                class="mx-4 w-full max-w-sm border-2 border-[#111] bg-white p-6"
+                style="box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06)"
+            >
                 <h2 class="mb-1 text-lg font-bold text-[#111]">{{ t('settings.remove') }}</h2>
-                <p class="mb-4 text-sm text-[#555]">{{ t('settings.remove_device_confirm', { device: removeTarget.label }) }}</p>
+                <p class="mb-4 text-sm text-[#555]">
+                    {{ t('settings.remove_device_confirm', { device: removeTarget.label }) }}
+                </p>
 
                 <div class="mb-4 flex justify-center">
                     <PvInputOtp v-model="removeCode" :length="6" integer-only />
                 </div>
 
                 <div class="flex gap-3">
-                    <PvButton severity="secondary" class="flex-1" @click="showRemoveModal = false">{{ t('settings.cancel') }}</PvButton>
-                    <PvButton class="flex-1" :disabled="removeCode.length !== 6" @click="confirmRemoveDevice">{{ t('settings.remove') }}</PvButton>
+                    <PvButton
+                        severity="secondary"
+                        class="flex-1"
+                        @click="showRemoveModal = false"
+                        >{{ t('settings.cancel') }}</PvButton
+                    >
+                    <PvButton
+                        class="flex-1"
+                        :disabled="removeCode.length !== 6"
+                        @click="confirmRemoveDevice"
+                        >{{ t('settings.remove') }}</PvButton
+                    >
                 </div>
             </div>
         </div>

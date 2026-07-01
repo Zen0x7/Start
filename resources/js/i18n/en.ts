@@ -15,7 +15,8 @@ export default {
         register_link: "Don't have an account?",
         profile_updated: 'Profile updated.',
         photo_updated: 'Profile photo updated.',
-        delete_confirm: 'Enter your TOTP code to delete your account. This action cannot be undone.',
+        delete_confirm:
+            'Enter your TOTP code to delete your account. This action cannot be undone.',
     },
     verify: {
         title: 'Check your email',

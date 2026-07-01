@@ -42,9 +42,21 @@ async function handleSubmit() {
         </p>
 
         <div class="flex justify-center">
-            <PvInputOtp v-model="totpCode" :length="6" integer-only :aria-label="t('totp.code_placeholder')" />
+            <PvInputOtp
+                v-model="totpCode"
+                :length="6"
+                integer-only
+                :aria-label="t('totp.code_placeholder')"
+            />
         </div>
 
-        <PvButton type="submit" :loading="loading" :disabled="loading || totpCode.length !== 6" class="w-full" :label="loading ? t('totp.verifying') : t('totp.verify_code')" @click="handleSubmit" />
+        <PvButton
+            type="submit"
+            :loading="loading"
+            :disabled="loading || totpCode.length !== 6"
+            class="w-full"
+            :label="loading ? t('totp.verifying') : t('totp.verify_code')"
+            @click="handleSubmit"
+        />
     </MinimalismCard>
 </template>

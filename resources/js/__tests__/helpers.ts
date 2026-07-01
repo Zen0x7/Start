@@ -33,12 +33,15 @@ export function mountWithPlugins(component: any, options?: any) {
             plugins: [
                 ...existingPlugins,
                 [i18n],
-                [PrimeVue, {
-                    theme: {
-                        preset: CvPreset,
-                        options: { darkModeSelector: false, cssLayer: false },
+                [
+                    PrimeVue,
+                    {
+                        theme: {
+                            preset: CvPreset,
+                            options: { darkModeSelector: false, cssLayer: false },
+                        },
                     },
-                }],
+                ],
                 ToastService,
             ],
             components: {

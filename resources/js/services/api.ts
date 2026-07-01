@@ -57,9 +57,7 @@ class ApiClient {
 
         if (!response.ok) {
             const err = new Error(
-                (json.message as string) ||
-                    (json.error as string) ||
-                    'Request failed',
+                (json.message as string) || (json.error as string) || 'Request failed',
             ) as Error & { status: number; data: ApiResponse<T> }
             err.status = response.status
             err.data = json

@@ -49,7 +49,10 @@ function onHide() {
         :aria-label="t('totp.confirm_action')"
         @click.self="onHide"
     >
-        <div class="w-full max-w-sm border-2 border-[#111] bg-white p-6" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+        <div
+            class="w-full max-w-sm border-2 border-[#111] bg-white p-6"
+            style="box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06)"
+        >
             <div class="mb-4 flex items-center justify-between">
                 <h2 class="text-lg font-bold text-[#111]">{{ t('totp.confirm_action') }}</h2>
                 <button
@@ -63,20 +66,34 @@ function onHide() {
 
             <p class="mb-4 text-sm text-[#555]">{{ t('totp.confirm_action_desc') }}</p>
 
-            <p v-if="error" class="mb-3 border-2 border-[#dc2626] bg-[#fef2f2] p-2 text-sm text-[#dc2626]" role="alert">
+            <p
+                v-if="error"
+                class="mb-3 border-2 border-[#dc2626] bg-[#fef2f2] p-2 text-sm text-[#dc2626]"
+                role="alert"
+            >
                 {{ error }}
             </p>
 
             <form @submit.prevent="handleSubmit">
                 <div class="mb-4 flex justify-center">
-                    <PvInputOtp v-model="totpCode" :length="6" integer-only :aria-label="t('totp.code_placeholder')" />
+                    <PvInputOtp
+                        v-model="totpCode"
+                        :length="6"
+                        integer-only
+                        :aria-label="t('totp.code_placeholder')"
+                    />
                 </div>
 
                 <div class="flex gap-3">
                     <PvButton type="button" severity="secondary" class="flex-1" @click="onHide">
                         {{ t('totp.cancel') }}
                     </PvButton>
-                    <PvButton type="submit" :loading="loading" :disabled="loading || totpCode.length !== 6" class="flex-1">
+                    <PvButton
+                        type="submit"
+                        :loading="loading"
+                        :disabled="loading || totpCode.length !== 6"
+                        class="flex-1"
+                    >
                         {{ t('totp.confirm') }}
                     </PvButton>
                 </div>

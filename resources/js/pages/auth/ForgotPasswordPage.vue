@@ -50,11 +50,20 @@ async function handleSubmit() {
                     <label for="fp-email">{{ t('auth.email') }}</label>
                 </PvFloatLabel>
 
-                <PvButton type="submit" :loading="loading" class="w-full" :label="loading ? t('password.sending') : t('password.send')" />
+                <PvButton
+                    type="submit"
+                    :loading="loading"
+                    class="w-full"
+                    :label="loading ? t('password.sending') : t('password.send')"
+                />
             </form>
 
             <template #footer>
-                <router-link :to="{ name: 'login' }" class="font-semibold text-[#111] underline hover:text-[#333]">{{ t('auth.login') }}</router-link>
+                <router-link
+                    :to="{ name: 'login' }"
+                    class="font-semibold text-[#111] underline hover:text-[#333]"
+                    >{{ t('auth.login') }}</router-link
+                >
             </template>
         </MinimalismCard>
     </template>

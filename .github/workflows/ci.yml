@@ -53,6 +53,9 @@ jobs:
                   touch ${{ github.workspace }}/database/database.sqlite
                   php artisan migrate --no-interaction
 
+            - name: Pint
+              run: vendor/bin/pint --test --format agent
+
             - name: PHPUnit with coverage
               run: php artisan test --compact --coverage
               env:
@@ -82,6 +85,9 @@ jobs:
 
             - name: TypeScript check
               run: yarn typecheck
+
+            - name: Prettier
+              run: npx prettier --check resources/js/
 
             - name: Unit tests with coverage
               run: yarn test:unit:coverage
