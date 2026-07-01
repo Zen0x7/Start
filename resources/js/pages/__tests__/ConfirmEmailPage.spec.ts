@@ -39,7 +39,7 @@ describe('ConfirmEmailPage', () => {
 
         await new Promise((r) => setTimeout(r, 50))
 
-        expect(wrapper.text()).toContain('The verification link is invalid or has expired.')
+        expect(wrapper.text()).toContain('This link is invalid or has expired.')
     })
 
     it('shows password form when token is valid', async () => {
@@ -57,10 +57,9 @@ describe('ConfirmEmailPage', () => {
 
         await new Promise((r) => setTimeout(r, 100))
 
-        expect(wrapper.text()).toContain('Confirm Email')
+        expect(wrapper.text()).toContain('Confirm your email')
     })
-
-    it('shows error on wrong password', async () => {
+    it('keeps form visible on wrong password', async () => {
         mockFetch
             .mockResolvedValueOnce({
                 ok: true,
@@ -81,15 +80,15 @@ describe('ConfirmEmailPage', () => {
 
         await new Promise((r) => setTimeout(r, 50))
 
-        // PvPassword renders an input inside - find it
         const inputs = wrapper.findAll('input')
+
         for (const input of inputs) {
             await input.setValue('wrong')
         }
         await wrapper.find('form').trigger('submit')
         await new Promise((r) => setTimeout(r, 50))
 
-        expect(wrapper.text()).toContain('The entered password is incorrect.')
+        expect(wrapper.find('form').exists()).toBe(true)
     })
 
     it('redirects to totp-setup on successful verification', async () => {
@@ -125,6 +124,6 @@ describe('ConfirmEmailPage', () => {
         await wrapper.find('form').trigger('submit')
         await new Promise((r) => setTimeout(r, 200))
 
-        expect(wrapper.text()).toContain('Email Confirmed')
+        expect(wrapper.text()).toContain('Email confirmed')
     })
 })

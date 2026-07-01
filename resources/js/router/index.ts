@@ -10,6 +10,7 @@ const router = createRouter({
             path: '/',
             name: 'home',
             component: HomePage,
+            meta: { guest: true },
         },
         {
             path: '/dashboard',
@@ -53,6 +54,10 @@ const router = createRouter({
 
 router.beforeEach((to, from) => {
     const auth = useAuthStore()
+
+    if (to.name === 'home') {
+        return auth.isAuthenticated ? { name: 'dashboard' } : { name: 'login' }
+    }
 
     if (to.meta.requiresAuth && !auth.isAuthenticated) {
         return { name: 'login' }

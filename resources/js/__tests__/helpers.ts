@@ -1,14 +1,16 @@
 import { mount } from '@vue/test-utils'
 import { createI18n } from 'vue-i18n'
 import PrimeVue from 'primevue/config'
+import ToastService from 'primevue/toastservice'
 import { CvPreset } from '@/prime-preset'
+import MinimalismCard from '@/components/MinimalismCard.vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import InputOtp from 'primevue/inputotp'
 import FloatLabel from 'primevue/floatlabel'
-import Message from 'primevue/message'
+import Toast from 'primevue/toast'
 import en from '@/i18n/en'
 
 export const i18n = createI18n({
@@ -36,16 +38,18 @@ export function mountWithPlugins(component: any, options?: any) {
                         options: { darkModeSelector: false, cssLayer: false },
                     },
                 }],
+                ToastService,
             ],
             components: {
                 ...existingComponents,
+                MinimalismCard,
                 PvDialog: Dialog,
                 PvButton: Button,
                 PvInputText: InputText,
                 PvPassword: Password,
                 PvInputOtp: InputOtp,
                 PvFloatLabel: FloatLabel,
-                PvMessage: Message,
+                PvToast: Toast,
             },
         },
     })

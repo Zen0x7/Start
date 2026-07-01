@@ -6,8 +6,8 @@ const { locale } = useI18n()
 const saved = useStorage('app_locale', '')
 
 const languages = [
-    { code: 'en', label: 'EN', icon: '🇬🇧' },
-    { code: 'es', label: 'ES', icon: '🇪🇸' },
+    { code: 'en', label: 'EN' },
+    { code: 'es', label: 'ES' },
 ]
 
 function select(lang: string) {
@@ -19,7 +19,7 @@ function select(lang: string) {
 
 <template>
     <div
-        class="flex items-center gap-1"
+        class="flex items-center gap-0 border-2 border-[#111] bg-white"
         role="radiogroup"
         :aria-label="locale === 'es' ? 'Seleccionar idioma' : 'Select language'"
     >
@@ -29,10 +29,10 @@ function select(lang: string) {
             role="radio"
             :aria-checked="locale === lang.code"
             :aria-label="lang.code === 'en' ? 'English' : 'Español'"
-            class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#111] focus:ring-inset"
             :class="locale === lang.code
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'border bg-white text-gray-600 hover:bg-gray-50'"
+                ? 'bg-[#111] text-white'
+                : 'bg-white text-[#555] hover:bg-[#f5f5f0]'"
             @click="select(lang.code)"
         >
             {{ lang.label }}

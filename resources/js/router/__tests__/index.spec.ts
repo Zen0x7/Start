@@ -18,9 +18,9 @@ describe('Router guards', () => {
         expect(router.currentRoute.value.name).toBe('login')
     })
 
-    it('allows access to home for anyone', async () => {
+    it('redirects to login when unauthenticated and accessing root', async () => {
         await router.push('/')
         await new Promise((r) => setTimeout(r, 50))
-        expect(router.currentRoute.value.name).toBe('home')
+        expect(router.currentRoute.value.name).toBe('login')
     })
 })

@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { api } from '@/services/api'
+import { Icons } from '@/components/icons'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
@@ -47,12 +50,12 @@ async function generateQR(text: string) {
 
 onMounted(async () => {
     if (!tempToken.value) {
-        error.value = 'Token de sesión no encontrado.'
+        error.value = t('totp.token_required')
         return
     }
 
     if (!crypto.subtle) {
-        error.value = 'El navegador no soporta Web Crypto API (requiere HTTPS o localhost).'
+        error.value = t('errors.generic')
         loading.value = false
         return
     }
@@ -71,28 +74,12 @@ onMounted(async () => {
         const secret = randomBase32()
         secretBase32.value = secret
 
-        console.log('[TOTP] Importing JWK key...', JSON.stringify(jwk))
-        const key = await crypto.subtle.importKey(
-            'jwk',
-            jwk,
-            { name: 'RSA-OAEP', hash: { name: 'SHA-256' } },
-            false,
-            ['encrypt'],
-        )
-        console.log('[TOTP] Key imported successfully')
+        const key = await crypto.subtle.importKey('jwk', jwk, { name: 'RSA-OAEP', hash: { name: 'SHA-256' } }, false, ['encrypt'])
 
         const encoder = new TextEncoder()
-        console.log('[TOTP] Encrypting secret...')
-        const encrypted = await crypto.subtle.encrypt(
-            { name: 'RSA-OAEP' },
-            key,
-            encoder.encode(secret),
-        )
-        console.log('[TOTP] Secret encrypted, size:', encrypted.byteLength)
+        const encrypted = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, key, encoder.encode(secret))
 
-        const encryptedBase64 = btoa(
-            String.fromCharCode(...new Uint8Array(encrypted)),
-        )
+        const encryptedBase64 = btoa(String.fromCharCode(...new Uint8Array(encrypted)))
 
         const label = email.value || 'user'
         const provisioningUri = `otpauth://totp/Laravel:${encodeURIComponent(label)}?secret=${secret}&issuer=Laravel`
@@ -104,8 +91,7 @@ onMounted(async () => {
         step.value = 'qr'
     } catch (err: unknown) {
         const e = err as Error & { data?: { message?: string } }
-        const msg = e.data?.message || e.message || 'Error desconocido'
-        console.error('[TOTP Setup]', msg, e)
+        const msg = e.data?.message || e.message || t('errors.generic')
         error.value = msg
     } finally {
         loading.value = false
@@ -117,8 +103,7 @@ async function confirmSetup() {
     loading.value = true
 
     try {
-        const encryptedBase64 = (window as unknown as Record<string, unknown>)
-            .__totp_encrypted as string
+        const encryptedBase64 = (window as unknown as Record<string, unknown>).__totp_encrypted as string
 
         const res = await api.post<{ token: string; user: { id: number; name: string; email: string } }>(
             '/auth/totp/setup/confirm',
@@ -136,7 +121,7 @@ async function confirmSetup() {
         setTimeout(() => router.push({ name: 'dashboard' }), 2000)
     } catch (err: unknown) {
         const e = err as Error & { data?: { message?: string } }
-        error.value = e.data?.message || e.message || 'Error al confirmar TOTP.'
+        error.value = e.data?.message || e.message || t('errors.generic')
     } finally {
         loading.value = false
     }
@@ -144,80 +129,44 @@ async function confirmSetup() {
 </script>
 
 <template>
-    <main class="mx-auto flex min-h-screen max-w-md items-center px-4">
-        <template v-if="error && step === 'init'">
-            <div class="w-full text-center space-y-4">
-                <p class="rounded-lg bg-red-50 p-4 text-red-600">{{ error }}</p>
+    <template v-if="error && step === 'init'">
+        <MinimalismCard
+            :icon="Icons.lock"
+            :label="t('totp.setup_title')"
+            :message="error"
+        />
+    </template>
+
+    <template v-else-if="step === 'qr'">
+        <MinimalismCard
+            :icon="Icons.qr"
+            :label="t('totp.setup_title')"
+            :message="t('totp.setup_desc')"
+        >
+            <img v-if="qrDataUrl" :src="qrDataUrl" alt="TOTP QR" class="mx-auto mb-4 w-48 border-2 border-[#111]" />
+
+            <div class="mb-4 border-2 border-[#ddd] bg-[#f5f5f0] p-3 text-xs text-[#555] break-all">
+                <p class="font-mono text-[#111]">{{ secretBase32 }}</p>
             </div>
-        </template>
 
-        <template v-else-if="step === 'qr'">
-            <div class="w-full space-y-6 text-center">
-                <h1 class="text-2xl font-bold">Configurar TOTP</h1>
+            <p v-if="error" class="mb-2 text-sm text-[#dc2626]">
+                {{ error }}
+            </p>
 
-                <p class="text-gray-600">
-                    Escanea este código QR con tu aplicación
-                    autenticadora (Google Authenticator, Authy, etc.).
-                </p>
-
-                <img
-                    v-if="qrDataUrl"
-                    :src="qrDataUrl"
-                    alt="TOTP QR Code"
-                    class="mx-auto w-48 h-48"
-                />
-
-                <div class="rounded-lg bg-gray-50 p-3 text-xs text-gray-500 break-all">
-                    <p class="font-mono">{{ secretBase32 }}</p>
-                </div>
-
-                <p
-                    v-if="error"
-                    class="rounded-lg bg-red-50 p-3 text-sm text-red-600"
-                >
-                    {{ error }}
-                </p>
-
-                <div>
-                    <label
-                        for="totp-code"
-                        class="mb-1 block text-sm font-medium text-gray-700"
-                    >Código de verificación</label>
-                    <input
-                        id="totp-code"
-                        v-model="totpCode"
-                        type="text"
-                        maxlength="6"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2 text-center text-2xl tracking-widest focus:border-blue-500 focus:outline-none"
-                        placeholder="000000"
-                        @keyup.enter="confirmSetup"
-                    />
-                </div>
-
-                <button
-                    :disabled="loading || totpCode.length !== 6"
-                    class="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-                    @click="confirmSetup"
-                >
-                    {{ loading ? 'Verificando...' : 'Confirmar' }}
-                </button>
+            <div class="mb-4 flex justify-center">
+                <PvInputOtp v-model="totpCode" :length="6" integer-only :aria-label="t('totp.verify_code')" />
             </div>
-        </template>
 
-        <template v-else-if="step === 'confirm'">
-            <div class="w-full space-y-4 text-center">
-                <div class="rounded-full bg-green-100 p-4 mx-auto w-16 h-16 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <h1 class="text-2xl font-bold text-gray-900">
-                    TOTP Configurado
-                </h1>
-                <p class="text-gray-600">Redirigiendo...</p>
-            </div>
-        </template>
-    </main>
+            <PvButton :loading="loading" :disabled="loading || totpCode.length !== 6" class="w-full" :label="loading ? t('totp.verifying') : t('totp.confirm')" @click="confirmSetup" />
+        </MinimalismCard>
+    </template>
+
+    <template v-else-if="step === 'confirm'">
+        <MinimalismCard
+            :icon="Icons.check"
+            :label="t('totp.configured')"
+        >
+            <p class="text-sm text-[#555]">{{ t('totp.redirecting') }}</p>
+        </MinimalismCard>
+    </template>
 </template>

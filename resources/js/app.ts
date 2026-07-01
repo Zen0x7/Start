@@ -11,7 +11,9 @@ import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import InputOtp from 'primevue/inputotp'
 import FloatLabel from 'primevue/floatlabel'
-import Message from 'primevue/message'
+import Toast from 'primevue/toast'
+import ToastService from 'primevue/toastservice'
+import MinimalismCard from '@/components/MinimalismCard.vue'
 
 export function createApplication(): VueApp {
     const app = createApp(Root)
@@ -28,6 +30,7 @@ export function createApplication(): VueApp {
             },
         },
     })
+    app.use(ToastService)
 
     app.component('PvDialog', Dialog)
     app.component('PvButton', Button)
@@ -35,7 +38,8 @@ export function createApplication(): VueApp {
     app.component('PvPassword', Password)
     app.component('PvInputOtp', InputOtp)
     app.component('PvFloatLabel', FloatLabel)
-    app.component('PvMessage', Message)
+    app.component('PvToast', Toast)
+    app.component('MinimalismCard', MinimalismCard)
 
     return app
 }

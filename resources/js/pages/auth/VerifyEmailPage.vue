@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { api } from '@/services/api'
+import { Icons } from '@/components/icons'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -44,53 +45,38 @@ async function resendEmail() {
 </script>
 
 <template>
-    <main class="mx-auto flex min-h-screen max-w-md items-center px-4">
-        <div class="w-full space-y-6 text-center">
-            <div class="rounded-full bg-yellow-100 p-4 mx-auto w-16 h-16 flex items-center justify-center">
-                <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-            </div>
+    <MinimalismCard
+        :icon="Icons.mail"
+        :label="t('verify.title')"
+        :message="t('verify.waiting', { email })"
+    >
+        <p
+            v-if="resendMessage"
+            class="mb-2 text-sm text-[#555]"
+        >
+            {{ resendMessage }}
+        </p>
 
-            <h1 class="text-2xl font-bold text-gray-900">
-                {{ t('verify.waiting') }}
-            </h1>
+        <p
+            v-if="resendError"
+            class="mb-2 text-sm text-[#dc2626]"
+        >
+            {{ resendError }}
+        </p>
 
-            <p class="text-gray-600">
-                {{ t('verify.sent_to') }}
-                <strong class="text-gray-900">{{ email }}</strong>.
-                {{ t('verify.check_inbox') }}
-            </p>
+        <PvButton
+            :loading="resendLoading"
+            class="w-full"
+            :label="resendLoading ? t('verify.sending') : t('verify.resend')"
+            @click="resendEmail"
+        />
 
-            <p
-                v-if="resendMessage"
-                class="rounded-lg bg-green-50 p-3 text-sm text-green-600"
-            >
-                {{ resendMessage }}
-            </p>
-
-            <p
-                v-if="resendError"
-                class="rounded-lg bg-red-50 p-3 text-sm text-red-600"
-            >
-                {{ resendError }}
-            </p>
-
-            <button
-                :disabled="resendLoading"
-                class="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-                @click="resendEmail"
-            >
-                {{ resendLoading ? t('verify.sending') : t('verify.resend') }}
-            </button>
-
-            <p class="text-xs text-gray-500">
-                {{ t('verify.wrong_account') }}
-                <router-link
-                    :to="{ name: 'register' }"
-                    class="text-blue-600 hover:underline"
-                >{{ t('verify.create_another') }}</router-link>
-            </p>
-        </div>
-    </main>
+        <template #footer>
+            {{ t('verify.wrong_account') }}
+            <router-link
+                :to="{ name: 'register' }"
+                class="font-semibold text-[#111] underline hover:text-[#333]"
+            >{{ t('verify.create_another') }}</router-link>
+        </template>
+    </MinimalismCard>
 </template>

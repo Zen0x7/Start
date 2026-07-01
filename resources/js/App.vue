@@ -5,6 +5,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 <template>
     <div class="relative min-h-screen">
+        <PvToast position="bottom-right" />
         <div class="fixed right-4 top-4 z-50">
             <LanguageSwitcher />
         </div>

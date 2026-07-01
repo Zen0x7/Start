@@ -48,12 +48,12 @@ function onHide() {
         :aria-label="t('totp.confirm_action')"
         @click.self="onHide"
     >
-        <div class="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold">{{ t('totp.confirm_action') }}</h2>
+        <div class="w-full max-w-sm border-2 border-[#111] bg-white p-6" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-lg font-bold text-[#111]">{{ t('totp.confirm_action') }}</h2>
                 <button
                     aria-label="Close"
-                    class="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="flex h-8 w-8 items-center justify-center text-[#999] transition-colors hover:bg-[#f5f5f0] hover:text-[#111] focus:outline-none focus:ring-2 focus:ring-[#111]"
                     @click="onHide"
                 >
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,47 +62,22 @@ function onHide() {
                 </button>
             </div>
 
-            <p class="mb-4 text-sm text-gray-600">
-                {{ t('totp.confirm_action_desc') }}
-            </p>
+            <p class="mb-4 text-sm text-[#555]">{{ t('totp.confirm_action_desc') }}</p>
 
-            <p
-                v-if="error"
-                class="mb-3 rounded-lg bg-red-50 p-2 text-sm text-red-600"
-                role="alert"
-            >
+            <p v-if="error" class="mb-3 border-2 border-[#dc2626] bg-[#fef2f2] p-2 text-sm text-[#dc2626]" role="alert">
                 {{ error }}
             </p>
 
             <form @submit.prevent="handleSubmit">
-                <input
-                    v-model="totpCode"
-                    type="text"
-                    maxlength="6"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    required
-                    autofocus
-                    class="mb-4 w-full rounded-lg border border-gray-300 px-4 py-2 text-center text-2xl tracking-widest focus:border-blue-500 focus:outline-none"
-                    :placeholder="t('totp.code_placeholder')"
-                    :aria-label="t('totp.code_placeholder')"
-                />
+                <div class="mb-4 flex justify-center">
+                    <PvInputOtp v-model="totpCode" :length="6" integer-only :aria-label="t('totp.code_placeholder')" />
+                </div>
 
                 <div class="flex gap-3">
-                    <PvButton
-                        type="button"
-                        severity="secondary"
-                        class="flex-1"
-                        @click="onHide"
-                    >
+                    <PvButton type="button" severity="secondary" class="flex-1" @click="onHide">
                         {{ t('totp.cancel') }}
                     </PvButton>
-                    <PvButton
-                        type="submit"
-                        :loading="loading"
-                        :disabled="loading || totpCode.length !== 6"
-                        class="flex-1"
-                    >
+                    <PvButton type="submit" :loading="loading" :disabled="loading || totpCode.length !== 6" class="flex-1">
                         {{ t('totp.confirm') }}
                     </PvButton>
                 </div>

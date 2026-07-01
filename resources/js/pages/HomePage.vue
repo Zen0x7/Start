@@ -8,37 +8,22 @@ const auth = useAuthStore()
 
 <template>
     <main class="mx-auto flex min-h-screen max-w-7xl items-center justify-center px-4">
-        <div class="max-w-lg text-center">
-            <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                {{ t('home.welcome') }}
-            </h1>
-            <p class="mt-4 text-lg text-gray-600">
-                {{ t('home.description') }}
-            </p>
+        <div class="w-full max-w-lg border-2 border-[#111] bg-white p-12 text-center" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+            <h2 class="mb-2 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#999]">Start</h2>
+            <h1 class="mb-4 text-4xl font-bold tracking-tight text-[#111] sm:text-5xl">{{ t('home.welcome') }}</h1>
+            <p class="mb-8 text-lg text-[#555]">{{ t('home.description') }}</p>
 
-            <div
-                v-if="!auth.isAuthenticated"
-                class="mt-10 flex items-center justify-center gap-4"
-            >
-                <router-link
-                    :to="{ name: 'register' }"
-                    class="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
-                >
+            <div v-if="!auth.isAuthenticated" class="flex items-center justify-center gap-4">
+                <router-link :to="{ name: 'register' }" class="border-2 border-[#111] bg-[#111] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#333]">
                     {{ t('auth.register') }}
                 </router-link>
-                <router-link
-                    :to="{ name: 'login' }"
-                    class="rounded-lg border border-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-50"
-                >
+                <router-link :to="{ name: 'login' }" class="border-2 border-[#ddd] bg-white px-6 py-3 text-sm font-semibold text-[#555] transition-colors hover:border-[#999] hover:text-[#111]">
                     {{ t('auth.login') }}
                 </router-link>
             </div>
 
-            <div v-else class="mt-10">
-                <router-link
-                    :to="{ name: 'dashboard' }"
-                    class="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
-                >
+            <div v-else>
+                <router-link :to="{ name: 'dashboard' }" class="border-2 border-[#111] bg-[#111] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#333]">
                     {{ t('home.dashboard') }}
                 </router-link>
             </div>

@@ -30,7 +30,7 @@ describe('TotpVerifyPage', () => {
         const wrapper = mountWithPlugins(TotpVerifyPage, {
             global: { plugins: [router] },
         })
-        expect(wrapper.text()).toContain('Two-Factor Authentication')
+        expect(wrapper.text()).toContain('Authentication code')
     })
 
     it('renders code input', () => {
@@ -51,12 +51,11 @@ describe('TotpVerifyPage', () => {
         const wrapper = mountWithPlugins(TotpVerifyPage, {
             global: { plugins: [router] },
         })
-        // Fill all OTP inputs with digits
         const inputs = wrapper.findAll('input')
         for (let i = 0; i < inputs.length; i++) {
             await inputs[i].setValue(String((i + 1) % 10))
         }
-        await wrapper.find('form').trigger('submit')
+        await wrapper.find('button').trigger('click')
         await new Promise((r) => setTimeout(r, 50))
 
         expect(wrapper.text()).toContain('The entered TOTP code is not valid.')
@@ -73,12 +72,11 @@ describe('TotpVerifyPage', () => {
             global: { plugins: [router] },
         })
 
-        // Set totpCode via the component's v-model through the wrapper
         const inputs = wrapper.findAll('input')
         for (let i = 0; i < inputs.length; i++) {
             await inputs[i].setValue(String((i + 1) % 10))
         }
-        await wrapper.find('form').trigger('submit')
+        await wrapper.find('button').trigger('click')
         await new Promise((r) => setTimeout(r, 200))
 
         expect(router.currentRoute.value.name).toBe('dashboard')

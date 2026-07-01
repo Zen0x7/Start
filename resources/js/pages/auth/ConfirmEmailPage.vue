@@ -4,17 +4,19 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useFormErrors } from '@/composables/useFormErrors'
 import { api } from '@/services/api'
+import { Icons } from '@/components/icons'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const { generalError, fieldError, hasError, setErrors, clearErrors } = useFormErrors()
+const { fieldError, hasError, setErrors, clearErrors } = useFormErrors()
 
 const token = route.params.token as string
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const verified = ref(false)
+const initialError = ref('')
 
 onMounted(async () => {
     try {
@@ -23,8 +25,7 @@ onMounted(async () => {
         )
         email.value = res.data?.email ?? ''
     } catch {
-        clearErrors()
-        generalError.value = t('verify.invalid_link')
+        initialError.value = t('verify.invalid_link')
     }
 })
 
@@ -55,87 +56,55 @@ async function handleSubmit() {
 </script>
 
 <template>
-    <main class="mx-auto flex min-h-screen max-w-md items-center px-4">
-        <template v-if="generalError && !email && !loading">
-            <div class="w-full space-y-4 text-center">
-                <PvMessage
-                    severity="error"
-                    variant="simple"
-                    :closable="false"
-                >
-                    {{ generalError }}
-                </PvMessage>
+    <template v-if="initialError && !email && !loading">
+        <MinimalismCard
+            :icon="Icons.mail"
+            :label="t('verify.title')"
+            :message="initialError"
+        >
+            <template #footer>
                 <router-link
                     :to="{ name: 'register' }"
-                    class="text-blue-600 hover:underline"
+                    class="font-semibold text-[#111] underline hover:text-[#333]"
                 >{{ t('verify.create_another') }}</router-link>
-            </div>
-        </template>
+            </template>
+        </MinimalismCard>
+    </template>
 
-        <template v-else-if="verified">
-            <div class="w-full space-y-4 text-center">
-                <div class="rounded-full bg-green-100 p-4 mx-auto w-16 h-16 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <h1 class="text-2xl font-bold text-gray-900">
-                    {{ t('verify.confirmed') }}
-                </h1>
-                <p class="text-gray-600">{{ t('verify.redirecting_setup') }}</p>
-            </div>
-        </template>
+    <template v-else-if="verified">
+        <MinimalismCard
+            :icon="Icons.check"
+            label="Status"
+            :message="t('verify.confirmed')"
+        >
+            <p class="text-sm text-[#555]">{{ t('verify.redirecting_setup') }}</p>
+        </MinimalismCard>
+    </template>
 
-        <template v-else>
-            <div class="w-full border-2 border-[#111] bg-white p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
-                <form
-                    class="flex w-full flex-col gap-5"
-                    @submit.prevent="handleSubmit"
-                >
-                <h1 class="text-center text-2xl font-bold">
-                    {{ t('verify.confirm_title') }}
-                </h1>
-
-                <p class="text-center text-gray-600">
-                    {{ t('verify.confirm_desc', { email }) }}
-                </p>
-
-                <PvMessage
-                    v-if="generalError"
-                    severity="error"
-                    variant="simple"
-                    :closable="false"
-                >
-                    {{ generalError }}
-                </PvMessage>
-
+    <template v-else>
+        <MinimalismCard
+            :icon="Icons.mail"
+            :label="t('verify.confirm_title')"
+            :message="t('verify.confirm_desc')"
+        >
+            <form @submit.prevent="handleSubmit" class="text-left">
                 <div>
                     <PvFloatLabel>
-                        <PvPassword
-                            id="password"
-                            v-model="password"
-                            class="w-full"
-                            :class="{ 'p-invalid': hasError('password') }"
-                            :feedback="false"
-                            toggle-mask
-                            aria-required="true"
-                        />
+                        <PvPassword id="password" v-model="password" class="w-full" :class="{ 'p-invalid': hasError('password') }" :feedback="false" toggle-mask aria-required="true" />
                         <label for="password">{{ t('auth.password') }}</label>
                     </PvFloatLabel>
-                    <small
-                        v-if="hasError('password')"
-                        class="text-red-500"
-                    >{{ fieldError('password') }}</small>
+                    <small v-if="hasError('password')" class="text-[#dc2626]">{{ fieldError('password') }}</small>
                 </div>
 
-                <PvButton
-                    type="submit"
-                    :loading="loading"
-                    class="w-full"
-                    :label="loading ? t('verify.confirming') : t('verify.confirm_button')"
-                />
-                    </form>
-                </div>
-        </template>
-    </main>
+                <PvButton type="submit" :loading="loading" class="w-full" :label="loading ? t('verify.confirming') : t('verify.confirm_button')" />
+            </form>
+
+            <template #footer>
+                <router-link
+                    :to="{ name: 'register' }"
+                    class="font-semibold text-[#111] underline hover:text-[#333]"
+                >{{ t('verify.create_another') }}</router-link>
+            </template>
+        </MinimalismCard>
+    </template>
 </template>

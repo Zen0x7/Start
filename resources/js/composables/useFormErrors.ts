@@ -1,5 +1,6 @@
-import { ref, reactive } from 'vue'
+import { reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'primevue/usetoast'
 
 interface FieldErrors {
     [field: string]: string[]
@@ -7,12 +8,10 @@ interface FieldErrors {
 
 export function useFormErrors() {
     const { t } = useI18n()
-    const generalError = ref('')
+    const toast = useToast()
     const fieldErrors = reactive<FieldErrors>({})
 
     function setErrors(err: unknown) {
-        generalError.value = t('errors.processing')
-        fieldErrors as FieldErrors
         Object.keys(fieldErrors).forEach((k) => delete (fieldErrors as Record<string, unknown>)[k])
 
         const e = err as Error & {
@@ -26,13 +25,25 @@ export function useFormErrors() {
             for (const [field, msgs] of Object.entries(e.data.errors)) {
                 fieldErrors[field] = msgs
             }
+
+            if (!('totp_code' in (e.data.errors ?? {}))) {
+                toast.add({
+                    severity: 'error',
+                    summary: t('errors.processing'),
+                    life: 5000,
+                })
+            }
         } else {
-            generalError.value = e.data?.message || e.message || t('errors.generic')
+            toast.add({
+                severity: 'error',
+                summary: t('errors.generic'),
+                detail: e.data?.message || e.message,
+                life: 5000,
+            })
         }
     }
 
     function clearErrors() {
-        generalError.value = ''
         Object.keys(fieldErrors).forEach((k) => delete (fieldErrors as Record<string, unknown>)[k])
     }
 
@@ -45,7 +56,6 @@ export function useFormErrors() {
     }
 
     return {
-        generalError,
         fieldErrors,
         setErrors,
         clearErrors,

@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
+import { mountWithPlugins } from '@/__tests__/helpers'
 import VerifyEmailPage from '@/pages/auth/VerifyEmailPage.vue'
-import { i18n } from '@/__tests__/helpers'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -28,19 +27,19 @@ afterEach(() => {
 
 describe('VerifyEmailPage', () => {
     it('renders waiting message', () => {
-        const wrapper = mount(VerifyEmailPage, {
-            global: { plugins: [router, i18n] },
+        const wrapper = mountWithPlugins(VerifyEmailPage, {
+            global: { plugins: [router] },
         })
         expect(wrapper.text()).toContain(
-            'Before continuing, you need to confirm your email address.',
+            'We sent a confirmation link to',
         )
     })
 
     it('renders resend button', () => {
-        const wrapper = mount(VerifyEmailPage, {
-            global: { plugins: [router, i18n] },
+        const wrapper = mountWithPlugins(VerifyEmailPage, {
+            global: { plugins: [router] },
         })
-        expect(wrapper.text()).toContain('Resend Verification Email')
+        expect(wrapper.text()).toContain('Resend')
     })
 
     it('shows success message after resend', async () => {
@@ -49,21 +48,23 @@ describe('VerifyEmailPage', () => {
             status: 200,
             json: () =>
                 Promise.resolve({
-                    message: 'Verification email resent.',
+                    message: 'Link resent.',
                 }),
         })
 
         await router.push('/email/verify?email=test@example.com')
 
-        const wrapper = mount(VerifyEmailPage, {
-            global: { plugins: [router, i18n] },
+        const wrapper = mountWithPlugins(VerifyEmailPage, {
+            global: { plugins: [router] },
         })
 
-        await wrapper.find('button').trigger('click')
+        // PvButton renders a button element inside
+        const btn = wrapper.find('button')
+        await btn.trigger('click')
         await new Promise((r) => setTimeout(r, 50))
 
         expect(wrapper.text()).toContain('test@example.com')
-        expect(wrapper.text()).toContain('Verification email resent.')
+        expect(wrapper.text()).toContain('Link resent.')
     })
 
     it('shows error when resend fails', async () => {
@@ -78,11 +79,12 @@ describe('VerifyEmailPage', () => {
 
         await router.push('/email/verify?email=test@example.com')
 
-        const wrapper = mount(VerifyEmailPage, {
-            global: { plugins: [router, i18n] },
+        const wrapper = mountWithPlugins(VerifyEmailPage, {
+            global: { plugins: [router] },
         })
 
-        await wrapper.find('button').trigger('click')
+        const btn = wrapper.find('button')
+        await btn.trigger('click')
         await new Promise((r) => setTimeout(r, 50))
 
         expect(wrapper.text()).toContain('Too many requests.')

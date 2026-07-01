@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { Icons } from '@/components/icons'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -31,49 +32,19 @@ async function handleSubmit() {
 </script>
 
 <template>
-    <main class="mx-auto flex min-h-screen max-w-md items-center px-4">
-        <div class="w-full border-2 border-[#111] bg-white p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
-            <form
-                class="flex w-full flex-col gap-5"
-                @submit.prevent="handleSubmit"
-            >
-            <div class="text-center">
-                <div class="rounded-full bg-blue-100 p-4 mx-auto w-16 h-16 flex items-center justify-center">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                </div>
-                <h1 class="mt-4 text-2xl font-bold">{{ t('totp.verify_title') }}</h1>
-                <p class="mt-2 text-gray-600">
-                    {{ t('totp.verify_desc') }}
-                </p>
-            </div>
+    <MinimalismCard
+        :icon="Icons.lock"
+        :label="t('totp.verify_title')"
+        :message="t('totp.verify_desc')"
+    >
+        <p v-if="error" class="mb-2 text-sm text-[#dc2626]" role="alert">
+            {{ error }}
+        </p>
 
-            <p
-                v-if="error"
-                class="rounded-lg bg-red-50 p-3 text-sm text-red-600"
-                role="alert"
-            >
-                {{ error }}
-            </p>
+        <div class="flex justify-center">
+            <PvInputOtp v-model="totpCode" :length="6" integer-only :aria-label="t('totp.code_placeholder')" />
+        </div>
 
-            <div class="flex justify-center">
-                <PvInputOtp
-                    v-model="totpCode"
-                    :length="6"
-                    integer-only
-                    :aria-label="t('totp.code_placeholder')"
-                />
-            </div>
-
-            <PvButton
-                type="submit"
-                :loading="loading"
-                :disabled="loading || totpCode.length !== 6"
-                class="w-full"
-                :label="loading ? t('totp.verifying') : t('totp.verify_code')"
-            />
-                </form>
-            </div>
-    </main>
+        <PvButton type="submit" :loading="loading" :disabled="loading || totpCode.length !== 6" class="w-full" :label="loading ? t('totp.verifying') : t('totp.verify_code')" @click="handleSubmit" />
+    </MinimalismCard>
 </template>
