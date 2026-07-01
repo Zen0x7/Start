@@ -18,12 +18,13 @@ function select(lang: string) {
 </script>
 
 <template>
-    <div
-        class="flex items-center gap-0 border-2 border-[#111] bg-white"
-        role="radiogroup"
-        :aria-label="locale === 'es' ? 'Seleccionar idioma' : 'Select language'"
-    >
-        <button
+    <nav aria-label="Language">
+        <div
+            class="flex items-center gap-0 border-2 border-[#111] bg-white"
+            role="radiogroup"
+            :aria-label="locale === 'es' ? 'Seleccionar idioma' : 'Select language'"
+        >
+            <button
             v-for="lang in languages"
             :key="lang.code"
             role="radio"
@@ -35,7 +36,8 @@ function select(lang: string) {
                 : 'bg-white text-[#555] hover:bg-[#f5f5f0]'"
             @click="select(lang.code)"
         >
-            {{ lang.label }}
-        </button>
-    </div>
+                {{ lang.label }}
+            </button>
+        </div>
+    </nav>
 </template>

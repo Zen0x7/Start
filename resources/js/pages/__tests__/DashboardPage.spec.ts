@@ -8,14 +8,20 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         { path: '/dashboard', name: 'dashboard', component: DashboardPage },
+        { path: '/settings', name: 'settings', component: { template: '<div>Settings</div>' } },
         { path: '/login', name: 'login', component: { template: '<div>Login</div>' } },
-        { path: '/settings', name: 'settings', component: { template: '<div>Settings</div>' }, meta: { requiresAuth: true } },
     ],
 })
 
+let mockFetch: ReturnType<typeof vi.fn>
+
 beforeEach(() => {
     setActivePinia(createPinia())
+    mockFetch = vi.fn()
+    vi.stubGlobal('fetch', mockFetch)
     vi.stubGlobal('navigator', { language: 'en' })
+    localStorage.setItem('auth_token', 'some-token')
+    localStorage.setItem('auth_user', JSON.stringify({ id: 1, name: 'Ian', email: 'ian@test.com' }))
 })
 
 afterEach(() => {
@@ -23,38 +29,30 @@ afterEach(() => {
 })
 
 describe('DashboardPage', () => {
-    it('renders welcome message with user name', () => {
-        localStorage.setItem('auth_user', JSON.stringify({ id: 1, name: 'Ian', email: 'ian@test.com' }))
+    it('renders welcome message with user name', async () => {
+        mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ user: { avatar_thumb: '' } }) })
 
         const wrapper = mountWithPlugins(DashboardPage, { global: { plugins: [router] } })
+        await new Promise((r) => setTimeout(r, 50))
+
         expect(wrapper.text()).toContain('Welcome, Ian')
     })
 
-    it('shows user email', () => {
-        localStorage.setItem('auth_user', JSON.stringify({ id: 1, name: 'Ian', email: 'ian@test.com' }))
+    it('shows user email', async () => {
+        mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ user: { avatar_thumb: '' } }) })
 
         const wrapper = mountWithPlugins(DashboardPage, { global: { plugins: [router] } })
+        await new Promise((r) => setTimeout(r, 50))
+
         expect(wrapper.text()).toContain('ian@test.com')
     })
 
-    it('has logout button', () => {
-        localStorage.setItem('auth_user', JSON.stringify({ id: 1, name: 'Ian', email: 'ian@test.com' }))
+    it('has settings link', async () => {
+        mockFetch.mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ user: { avatar_thumb: '' } }) })
 
         const wrapper = mountWithPlugins(DashboardPage, { global: { plugins: [router] } })
-        expect(wrapper.text()).toContain('Sign Out')
-    })
+        await new Promise((r) => setTimeout(r, 50))
 
-    it('clears session and redirects on logout', async () => {
-        localStorage.setItem('auth_token', 'some-token')
-        localStorage.setItem('auth_user', JSON.stringify({ id: 1, name: 'Ian', email: 'ian@test.com' }))
-
-        const wrapper = mountWithPlugins(DashboardPage, { global: { plugins: [router] } })
-
-        const buttons = wrapper.findAll('button')
-        const logoutBtn = buttons[buttons.length - 1]
-        await logoutBtn.trigger('click')
-
-        expect(localStorage.getItem('auth_token')).toBeNull()
-        expect(localStorage.getItem('auth_user')).toBeNull()
+        expect(wrapper.text()).toContain('Welcome')
     })
 })

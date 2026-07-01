@@ -7,6 +7,7 @@ interface User {
     id: number
     name: string
     email: string
+    avatar_thumb?: string
 }
 
 interface LoginResponse {

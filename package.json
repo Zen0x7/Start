@@ -29,6 +29,7 @@
         "vue-tsc": "^3.3.6"
     },
     "dependencies": {
+        "@lucide/vue": "^1.22.0",
         "@primevue/themes": "^4.5.4",
         "@vueuse/core": "^14.3.0",
         "pinia": "^2.3",

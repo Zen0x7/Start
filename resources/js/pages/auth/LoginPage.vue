@@ -45,7 +45,7 @@ async function handleSubmit() {
         <form @submit.prevent="handleSubmit" class="space-y-7 text-left">
             <div>
                 <PvFloatLabel>
-                    <PvInputText id="email" v-model="email" class="w-full" :class="{ 'p-invalid': hasError('email') }" aria-required="true" />
+                    <PvInputText id="email" v-model="email" class="w-full" :class="{ 'p-invalid': hasError('email') }" />
                     <label for="email">{{ t('auth.email') }}</label>
                 </PvFloatLabel>
                 <small v-if="hasError('email')" class="text-[#dc2626]">{{ fieldError('email') }}</small>
@@ -53,7 +53,7 @@ async function handleSubmit() {
 
             <div>
                 <PvFloatLabel>
-                    <PvPassword id="password" v-model="password" class="w-full" :class="{ 'p-invalid': hasError('password') }" :feedback="false" toggle-mask aria-required="true" />
+                    <PvPassword input-id="password" v-model="password" class="w-full" :class="{ 'p-invalid': hasError('password') }" :feedback="false" toggle-mask />
                     <label for="password">{{ t('auth.password') }}</label>
                 </PvFloatLabel>
                 <small v-if="hasError('password')" class="text-[#dc2626]">{{ fieldError('password') }}</small>

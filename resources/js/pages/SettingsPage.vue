@@ -6,8 +6,7 @@ import { useAuthStore } from '@/stores/auth'
 import { api } from '@/services/api'
 import { useToast } from 'primevue/usetoast'
 import { Icons } from '@/components/icons'
-import AppLogo from '@/components/AppLogo.vue'
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import TopBar from '@/components/TopBar.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -122,28 +121,11 @@ async function deleteAccount() {
     }
 }
 
-function handleLogout() {
-    auth.logout()
-    router.push({ name: 'login' })
-}
 </script>
 
 <template>
     <div class="min-h-screen bg-[#fcfcf8]">
-        <header class="border-b-2 border-[#111] bg-white">
-            <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-                <div class="flex items-center gap-3">
-                    <AppLogo class="h-8 w-8 text-[#111]" />
-                    <h1 class="text-lg font-bold text-[#111]">{{ t('settings.title') }}</h1>
-                </div>
-                <div class="flex items-center gap-4">
-                    <LanguageSwitcher />
-                    <span class="text-sm text-[#555]">{{ auth.currentUser?.name }}</span>
-                    <router-link :to="{ name: 'dashboard' }" class="text-sm font-semibold text-[#111] underline hover:text-[#333]">{{ t('settings.dashboard') }}</router-link>
-                    <PvButton severity="secondary" @click="handleLogout">{{ t('auth.logout') }}</PvButton>
-                </div>
-            </div>
-        </header>
+        <TopBar />
 
         <main class="mx-auto max-w-4xl px-4 py-8">
             <div class="mb-6 flex gap-2 border-b-2 border-[#ddd] pb-4">

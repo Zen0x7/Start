@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { api } from '@/services/api'
+import { X } from '@lucide/vue'
 
 const { t } = useI18n()
 
@@ -56,9 +57,7 @@ function onHide() {
                     class="flex h-8 w-8 items-center justify-center text-[#999] transition-colors hover:bg-[#f5f5f0] hover:text-[#111] focus:outline-none focus:ring-2 focus:ring-[#111]"
                     @click="onHide"
                 >
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <X class="h-5 w-5" />
                 </button>
             </div>
 

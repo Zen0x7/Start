@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 defineProps<{
-    icon?: string
+    icon?: Component
     label: string
     message?: string
 }>()
@@ -15,15 +17,16 @@ defineProps<{
             <div
                 v-if="icon"
                 class="mx-auto mb-6 flex h-16 w-16 items-center justify-center border-2 border-[#111] bg-[#f5f5f0]"
-                v-html="icon"
-            />
+            >
+                <component :is="icon" class="h-8 w-8 text-[#111]" />
+            </div>
 
-            <h2
+            <h1
                 v-if="label"
                 class="mb-2 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#999]"
             >
                 {{ label }}
-            </h2>
+            </h1>
 
             <p
                 v-if="message"
