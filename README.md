@@ -1,5 +1,7 @@
 # Start
 
+[![codecov](https://codecov.io/gh/Zen0x7/Start/branch/master/graph/badge.svg?token=O8WPOAURM8)](https://codecov.io/gh/Zen0x7/Start)
+
 Base project for Laravel + Vue 3 authentication systems with multi-factor authentication, i18n, and accessibility.
 
 ## Stack
