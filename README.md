@@ -15,13 +15,17 @@ Base project for Laravel + Vue 3 authentication systems with multi-factor authen
 
 ## Screenshots
 
-| Auth pages | Dashboard & Settings |
-|---|---|
-| ![Login](public/screenshots/01-login.webp) | ![Dashboard](public/screenshots/05-dashboard.webp) |
-| ![Register](public/screenshots/02-register.webp) | ![Settings - Profile](public/screenshots/06-settings.webp) |
-| ![Forgot password](public/screenshots/03-forgot-password.webp) | ![Settings - Keys](public/screenshots/07-settings-totp.webp) |
-| ![Verify email](public/screenshots/04-verify-email.webp) | ![Settings - Activity](public/screenshots/08-settings-activity.webp) |
-| | ![Settings - Destructive](public/screenshots/09-settings-destructive.webp) |
+| Page | Preview | Description |
+|---|---|---|
+| **Login** | ![Login](public/screenshots/01-login.webp) | Sign in with email + password. TOTP challenge if configured. |
+| **Register** | ![Register](public/screenshots/02-register.webp) | Create account with name, email, password. |
+| **Forgot password** | ![Forgot password](public/screenshots/03-forgot-password.webp) | Request reset link by email. |
+| **Verify email** | ![Verify email](public/screenshots/04-verify-email.webp) | Waiting page after registration. Resend option with throttle. |
+| **Dashboard** | ![Dashboard](public/screenshots/05-dashboard.webp) | Authenticated landing page with user info. |
+| **Settings — Profile** | ![Settings profile](public/screenshots/06-settings.webp) | Edit name, email (re-verification), upload avatar. |
+| **Settings — Keys** | ![Settings keys](public/screenshots/07-settings-totp.webp) | Manage TOTP devices. Add/remove keys. |
+| **Settings — Activity** | ![Settings activity](public/screenshots/08-settings-activity.webp) | Recent login attempts and TOTP usage. |
+| **Settings — Destructive** | ![Settings destructive](public/screenshots/09-settings-destructive.webp) | Delete account with TOTP confirmation. |
 
 ## Features
 
