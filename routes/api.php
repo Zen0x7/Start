@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\ActivityController;
+use App\Http\Controllers\Api\Auth\ForgotPasswordController;
 use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\Auth\ProfileController;
 use App\Http\Controllers\Api\Auth\RegisterController;
+use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\TotpSetupController;
 use App\Http\Controllers\Api\Auth\TotpUsageController;
 use App\Http\Controllers\Api\Auth\TotpVerifyController;
@@ -20,6 +22,10 @@ Route::name('auth.')->group(function (): void {
 
     Route::post('/auth/totp/setup/init', [TotpSetupController::class, 'init'])->name('totp.setup.init');
     Route::post('/auth/totp/setup/confirm', [TotpSetupController::class, 'confirm'])->name('totp.setup.confirm');
+    Route::post('/auth/password/email', [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+    Route::get('/auth/password/reset/{token}', [ForgotPasswordController::class, 'checkToken'])->name('password.check');
+    Route::post('/auth/password/reset', [ResetPasswordController::class, 'reset'])->name('password.reset');
+
     Route::post('/auth/totp/verify', [TotpVerifyController::class, 'verify'])->name('totp.verify');
     Route::post('/auth/totp/confirm-action', [TotpUsageController::class, 'confirmAction'])->name('totp.confirm-action');
 

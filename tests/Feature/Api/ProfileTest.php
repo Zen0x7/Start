@@ -153,27 +153,31 @@ class ProfileTest extends TestCase
     {
         $user = User::factory()->create();
         $totp = TOTP::generate();
-        $device = $this->totp->createDevice($user, $totp->getSecret());
+        $this->totp->createDevice($user, $totp->getSecret(), 'Primary');
+        $totp2 = TOTP::generate();
+        $device2 = $this->totp->createDevice($user, $totp2->getSecret(), 'Secondary');
 
         $response = $this->postJson('/api/auth/totp/devices/delete', [
-            'device_id' => $device->id,
-            'totp_code' => $totp->now(),
+            'device_id' => $device2->id,
+            'totp_code' => $totp2->now(),
         ], [
             'Authorization' => 'Bearer '.$this->authToken($user),
         ]);
 
         $response->assertStatus(200);
-        $this->assertModelMissing($device);
+        $this->assertModelMissing($device2);
     }
 
     public function test_delete_totp_device_with_wrong_code_fails(): void
     {
         $user = User::factory()->create();
         $totp = TOTP::generate();
-        $device = $this->totp->createDevice($user, $totp->getSecret());
+        $this->totp->createDevice($user, $totp->getSecret(), 'Primary');
+        $totp2 = TOTP::generate();
+        $device2 = $this->totp->createDevice($user, $totp2->getSecret(), 'Secondary');
 
         $response = $this->postJson('/api/auth/totp/devices/delete', [
-            'device_id' => $device->id,
+            'device_id' => $device2->id,
             'totp_code' => '000000',
         ], [
             'Authorization' => 'Bearer '.$this->authToken($user),

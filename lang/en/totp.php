@@ -9,4 +9,5 @@ return [
     'verified' => 'TOTP code verified successfully.',
     'token_required' => 'Token required.',
     'device_removed' => 'TOTP device removed.',
+    'last_device' => 'Add another device before removing the last one.',
 ];

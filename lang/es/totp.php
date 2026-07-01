@@ -9,4 +9,5 @@ return [
     'verified' => 'Código TOTP verificado exitosamente.',
     'token_required' => 'Token requerido.',
     'device_removed' => 'Dispositivo TOTP eliminado.',
+    'last_device' => 'Agrega otro dispositivo antes de eliminar el último.',
 ];

@@ -200,7 +200,7 @@ async function deleteAccount() {
                         <p class="truncate font-semibold text-[#111]">{{ device.label }}</p>
                         <p class="text-xs text-[#999]">{{ t('settings.added') }} {{ new Date(device.created_at).toLocaleDateString() }}</p>
                     </div>
-                    <PvButton severity="secondary" class="ml-3 shrink-0" @click="promptRemoveDevice(device)">{{ t('settings.remove') }}</PvButton>
+                    <PvButton severity="secondary" class="ml-3 shrink-0" :disabled="totpDevices.length <= 1" @click="promptRemoveDevice(device)">{{ t('settings.remove') }}</PvButton>
                 </div>
 
                 <router-link :to="{ name: 'totp-setup' }" class="mt-4 inline-block border-2 border-[#111] px-4 py-2 text-sm font-semibold text-[#555] hover:bg-[#f5f5f0]">

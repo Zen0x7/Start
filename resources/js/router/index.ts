@@ -55,6 +55,16 @@ const router = createRouter({
             name: 'totp-verify',
             component: () => import('@/pages/auth/TotpVerifyPage.vue'),
         },
+        {
+            path: '/forgot-password',
+            name: 'forgot-password',
+            component: () => import('@/pages/auth/ForgotPasswordPage.vue'),
+        },
+        {
+            path: '/reset-password/:token',
+            name: 'reset-password',
+            component: () => import('@/pages/auth/ResetPasswordPage.vue'),
+        },
     ],
 })
 

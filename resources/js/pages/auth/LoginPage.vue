@@ -62,6 +62,10 @@ async function handleSubmit() {
             <PvButton type="submit" :loading="loading" class="w-full" :label="loading ? t('auth.logging_in') : t('auth.login')" />
         </form>
 
+        <p class="mt-2 text-center text-xs text-[#999]">
+            <router-link :to="{ name: 'forgot-password' }" class="underline hover:text-[#111]">{{ t('password.forgot_title') }}</router-link>
+        </p>
+
         <template #footer>
             {{ t('auth.register_link') }}
             <router-link :to="{ name: 'register' }" class="font-semibold text-[#111] underline hover:text-[#333]">{{ t('auth.register') }}</router-link>

@@ -1,22 +1,10 @@
 <?php
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Password Reset Language Lines
-    |--------------------------------------------------------------------------
-    |
-    | The following language lines are the default lines which match reasons
-    | that are given by the password broker for a password update attempt
-    | outcome such as failure due to an invalid password / reset token.
-    |
-    */
-
+    'sent' => 'We have sent a password reset link to your email.',
     'reset' => 'Your password has been reset.',
-    'sent' => 'We have emailed your password reset link.',
-    'throttled' => 'Please wait before retrying.',
-    'token' => 'This password reset token is invalid.',
-    'user' => "We can't find a user with that email address.",
-
+    'invalid_token' => 'This reset link is invalid or has expired.',
+    'invalid_user' => 'User not found.',
+    'totp_required' => 'A TOTP code is required to reset your password.',
+    'totp_invalid' => 'The TOTP code is not valid.',
 ];

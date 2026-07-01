@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ProfileController extends Controller
 {
@@ -139,6 +140,10 @@ class ProfileController extends Controller
             'device_id' => ['required', 'integer', 'exists:totp_devices,id'],
             'totp_code' => ['required', 'string', 'size:6'],
         ]);
+
+        if ($user->totpDevices()->count() <= 1) {
+            throw HttpException::fromStatusCode(400, __('totp.last_device'));
+        }
 
         $device = $user->totpDevices()->findOrFail($validated['device_id']);
 
