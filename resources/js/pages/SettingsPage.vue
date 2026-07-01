@@ -235,12 +235,21 @@ async function deleteAccount() {
                 <div class="overflow-x-auto -mx-6 sm:mx-0">
                     <div class="min-w-[32rem] sm:min-w-0">
                         <div v-for="(item, i) in activity" :key="i" class="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#eee] py-2.5 text-sm">
-                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold" :class="item.successful ? 'bg-[#f5f5f0] text-green-700' : 'bg-red-50 text-red-600'">
-                                {{ item.successful ? '✓' : '✗' }}
+                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold" :class="item.successful ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-600'">
+                                <span v-if="item.successful && item.type === 'login'">→</span>
+                                <span v-else-if="item.successful && item.type === 'totp'">✓</span>
+                                <span v-else>✗</span>
                             </span>
-                            <span class="text-xs font-semibold text-[#555]">{{ item.type === 'login' ? t('activity.login') : t('activity.totp') }}</span>
-                            <span class="text-[#999]">·</span>
-                            <span class="min-w-0 flex-1 truncate text-[#111]">{{ item.device || item.ip_address || '-' }}</span>
+                            <span v-if="item.type === 'login'" class="text-xs font-semibold text-[#555]">
+                                {{ item.successful ? 'Login' : 'Login failed' }}
+                                <span v-if="item.ip_address" class="font-normal text-[#999]">· {{ item.ip_address }}</span>
+                            </span>
+                            <span v-else class="text-xs font-semibold text-[#555]">
+                                TOTP
+                                <span v-if="item.device" class="font-normal text-[#999]">· {{ item.device }}</span>
+                            </span>
+                            <span class="hidden sm:inline text-[#999]">·</span>
+                            <span class="hidden sm:inline flex-1 truncate text-[#111]">{{ item.user_agent ? item.user_agent.split('/')[0] : '' }}</span>
                             <span class="text-xs text-[#999] whitespace-nowrap">{{ formatDate(item.created_at) }}</span>
                         </div>
                     </div>

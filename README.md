@@ -13,6 +13,16 @@ Base project for Laravel + Vue 3 authentication systems with multi-factor authen
 | Testing | PHPUnit, Vitest, Playwright + axe-core |
 | Multi-factor | TOTP (otphp), RSA-OAEP challenge tokens |
 
+## Screenshots
+
+| Auth pages | Dashboard & Settings |
+|---|---|
+| ![Login](public/screenshots/01-login.webp) | ![Dashboard](public/screenshots/05-dashboard.webp) |
+| ![Register](public/screenshots/02-register.webp) | ![Settings - Profile](public/screenshots/06-settings.webp) |
+| ![Forgot password](public/screenshots/03-forgot-password.webp) | ![Settings - Keys](public/screenshots/07-settings-totp.webp) |
+| ![Verify email](public/screenshots/04-verify-email.webp) | ![Settings - Activity](public/screenshots/08-settings-activity.webp) |
+| | ![Settings - Destructive](public/screenshots/09-settings-destructive.webp) |
+
 ## Features
 
 - **Registration** — name, email, password, email verification
