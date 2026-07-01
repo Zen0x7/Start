@@ -50,7 +50,7 @@ describe('SettingsPage', () => {
         await new Promise((r) => setTimeout(r, 50))
 
         const buttons = wrapper.findAll('button')
-        const totpBtn = [...buttons].find(b => b.text().includes('TOTP'))
+        const totpBtn = [...buttons].find(b => b.text().includes('Keys'))
         if (totpBtn) await totpBtn.trigger('click')
         await new Promise((r) => setTimeout(r, 50))
 

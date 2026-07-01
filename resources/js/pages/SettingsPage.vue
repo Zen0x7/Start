@@ -7,6 +7,7 @@ import { api } from '@/services/api'
 import { useToast } from 'primevue/usetoast'
 import { Icons } from '@/components/icons'
 import TopBar from '@/components/TopBar.vue'
+import { User, KeyRound, Activity, AlertTriangle } from '@lucide/vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -15,6 +16,13 @@ const toast = useToast()
 
 const section = ref<'profile' | 'totp' | 'danger' | 'activity'>('profile')
 
+const tabs = [
+    { label: t('settings.profile'), value: 'profile' as const, icon: User },
+    { label: t('settings.totp_devices'), value: 'totp' as const, icon: KeyRound },
+    { label: t('settings.activity'), value: 'activity' as const, icon: Activity },
+    { label: t('settings.danger'), value: 'danger' as const, icon: AlertTriangle },
+]
+
 const name = ref('')
 const email = ref('')
 const avatar = ref('')
@@ -22,9 +30,11 @@ const saving = ref(false)
 
 const totpDevices = ref<{ id: number; label: string; created_at: string; last_used_at: string | null }[]>([])
 const deleteCode = ref('')
-const deviceCode = ref('')
-const deviceId = ref<number | null>(null)
 const showDeleteConfirm = ref(false)
+
+const showRemoveModal = ref(false)
+const removeTarget = ref<{ id: number; label: string } | null>(null)
+const removeCode = ref('')
 
 interface ActivityItem {
     type: 'login' | 'totp'
@@ -97,17 +107,23 @@ async function handlePhoto(e: Event) {
     }
 }
 
-async function removeDevice(device: { id: number }) {
-    deviceId.value = device.id
+function promptRemoveDevice(device: { id: number; label: string }) {
+    removeTarget.value = device
+    removeCode.value = ''
+    showRemoveModal.value = true
+}
+
+async function confirmRemoveDevice() {
+    if (!removeTarget.value) return
     try {
-        const res = await api.post('/auth/totp/devices/delete', { device_id: device.id, totp_code: deviceCode.value })
-        const data = res as { message?: string }
-        totpDevices.value = totpDevices.value.filter(d => d.id !== device.id)
-        deviceCode.value = ''
-        deviceId.value = null
-        toast.add({ severity: 'success', summary: (data as unknown as { message: string }).message || t('totp.device_removed'), life: 3000 })
+        const res = await api.post('/auth/totp/devices/delete', { device_id: removeTarget.value.id, totp_code: removeCode.value })
+        totpDevices.value = totpDevices.value.filter(d => d.id !== removeTarget.value!.id)
+        toast.add({ severity: 'success', summary: (res as unknown as { message: string }).message || t('totp.device_removed'), life: 3000 })
     } catch {
         toast.add({ severity: 'error', summary: t('errors.generic'), life: 5000 })
+    } finally {
+        showRemoveModal.value = false
+        removeTarget.value = null
     }
 }
 
@@ -120,29 +136,33 @@ async function deleteAccount() {
         toast.add({ severity: 'error', summary: t('errors.generic'), life: 5000 })
     }
 }
-
 </script>
 
 <template>
     <div class="min-h-screen bg-[#fcfcf8]">
         <TopBar />
 
-        <main class="mx-auto max-w-4xl px-4 py-8">
-            <div class="mb-6 flex gap-2 border-b-2 border-[#ddd] pb-4">
-                <button v-for="sec in ['profile', 'totp', 'activity', 'danger']" :key="sec"
-                    class="px-4 py-2 text-sm font-semibold transition-colors focus:outline-none"
-                    :class="section === sec ? 'bg-[#111] text-white' : 'text-[#555] hover:bg-[#f5f5f0]'"
-                    @click="section = sec as typeof section"
+        <main class="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8">
+            <!-- Tabs -->
+            <div class="mb-6 flex flex-wrap gap-2">
+                <button
+                    v-for="opt in tabs" :key="opt.value"
+                    class="inline-flex items-center gap-2 border-2 px-4 py-2 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#111]"
+                    :class="section === opt.value
+                        ? 'border-[#111] bg-[#111] text-white'
+                        : 'border-[#ddd] bg-white text-[#555] hover:border-[#999]'"
+                    @click="section = opt.value as typeof section"
                 >
-                    {{ t('settings.' + (sec === 'profile' ? 'profile' : sec === 'totp' ? 'totp_devices' : sec === 'activity' ? 'activity' : 'danger')) }}
+                    <component :is="opt.icon" class="h-4 w-4" />
+                    {{ opt.label }}
                 </button>
             </div>
 
-            <!-- Profile Section -->
-            <div v-if="section === 'profile'" class="border-2 border-[#111] bg-white p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+            <!-- Profile -->
+            <div v-if="section === 'profile'" class="border-2 border-[#111] bg-white p-6 sm:p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
                 <h2 class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#999]">{{ t('settings.profile') }}</h2>
 
-                <div class="mb-10 flex items-center gap-4">
+                <div class="mb-10 flex flex-wrap items-center gap-4">
                     <img :src="avatar" alt="Avatar" class="h-16 w-16 border-2 border-[#111] object-cover" />
                     <label class="cursor-pointer border-2 border-[#111] px-4 py-2 text-sm font-semibold text-[#555] hover:bg-[#f5f5f0]">
                         {{ t('settings.upload_photo') }}
@@ -167,8 +187,8 @@ async function deleteAccount() {
                 </div>
             </div>
 
-            <!-- TOTP Devices Section -->
-            <div v-if="section === 'totp'" class="border-2 border-[#111] bg-white p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+            <!-- TOTP Devices -->
+            <div v-if="section === 'totp'" class="border-2 border-[#111] bg-white p-6 sm:p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
                 <h2 class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#999]">{{ t('settings.totp_devices') }}</h2>
 
                 <div v-if="totpDevices.length === 0" class="py-8 text-center text-sm text-[#555]">
@@ -176,14 +196,11 @@ async function deleteAccount() {
                 </div>
 
                 <div v-for="device in totpDevices" :key="device.id" class="mb-3 flex items-center justify-between border-2 border-[#ddd] p-4">
-                    <div>
-                        <p class="font-semibold text-[#111]">{{ device.label }}</p>
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate font-semibold text-[#111]">{{ device.label }}</p>
                         <p class="text-xs text-[#999]">{{ t('settings.added') }} {{ new Date(device.created_at).toLocaleDateString() }}</p>
                     </div>
-                    <div v-if="deviceId !== device.id" class="flex items-center gap-2">
-                        <PvInputOtp v-model="deviceCode" :length="6" integer-only class="mr-2" />
-                        <PvButton severity="secondary" @click="removeDevice(device)">{{ t('settings.remove') }}</PvButton>
-                    </div>
+                    <PvButton severity="secondary" class="ml-3 shrink-0" @click="promptRemoveDevice(device)">{{ t('settings.remove') }}</PvButton>
                 </div>
 
                 <router-link :to="{ name: 'totp-setup' }" class="mt-4 inline-block border-2 border-[#111] px-4 py-2 text-sm font-semibold text-[#555] hover:bg-[#f5f5f0]">
@@ -192,7 +209,7 @@ async function deleteAccount() {
             </div>
 
             <!-- Danger Zone -->
-            <div v-if="section === 'danger'" class="border-2 border-[#dc2626] bg-white p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+            <div v-if="section === 'danger'" class="border-2 border-[#dc2626] bg-white p-6 sm:p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
                 <h2 class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#dc2626]">{{ t('settings.danger') }}</h2>
                 <p class="mb-4 text-sm text-[#555]">{{ t('auth.delete_confirm') }}</p>
 
@@ -210,21 +227,48 @@ async function deleteAccount() {
             </div>
 
             <!-- Activity -->
-            <div v-if="section === 'activity'" class="border-2 border-[#111] bg-white p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+            <div v-if="section === 'activity'" class="border-2 border-[#111] bg-white p-6 sm:p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
                 <h2 class="mb-1 text-[0.6875rem] font-semibold uppercase tracking-[0.15em] text-[#999]">{{ t('activity.recent') }}</h2>
 
                 <div v-if="activity.length === 0" class="py-8 text-center text-sm text-[#555]">{{ t('settings.no_activity') }}</div>
 
-                <div v-for="(item, i) in activity" :key="i" class="flex items-center gap-3 border-b border-[#eee] py-2.5 text-sm">
-                    <span class="flex h-6 w-6 items-center justify-center rounded text-xs font-bold" :class="item.successful ? 'bg-[#f5f5f0] text-green-700' : 'bg-red-50 text-red-600'">
-                        {{ item.successful ? '✓' : '✗' }}
-                    </span>
-                    <span class="w-12 text-xs font-semibold text-[#555]">{{ item.type === 'login' ? t('activity.login') : t('activity.totp') }}</span>
-                    <span class="w-6 text-center text-[#999]">·</span>
-                    <span class="flex-1 text-[#111]">{{ item.device || item.ip_address || '-' }}</span>
-                    <span class="text-xs text-[#999]">{{ formatDate(item.created_at) }}</span>
+                <div class="overflow-x-auto -mx-6 sm:mx-0">
+                    <div class="min-w-[32rem] sm:min-w-0">
+                        <div v-for="(item, i) in activity" :key="i" class="flex items-center gap-2 border-b border-[#eee] py-2.5 text-sm">
+                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold" :class="item.successful ? 'bg-[#f5f5f0] text-green-700' : 'bg-red-50 text-red-600'">
+                                {{ item.successful ? '✓' : '✗' }}
+                            </span>
+                            <span class="shrink-0 text-xs font-semibold text-[#555] w-10">{{ item.type === 'login' ? t('activity.login') : t('activity.totp') }}</span>
+                            <span class="shrink-0 text-center text-[#999] w-4">·</span>
+                            <span class="min-w-0 flex-1 truncate text-[#111]">{{ item.device || item.ip_address || '-' }}</span>
+                            <span class="shrink-0 text-xs text-[#999] whitespace-nowrap">{{ formatDate(item.created_at) }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
+
+        <!-- Remove Device Modal -->
+        <div
+            v-if="showRemoveModal && removeTarget"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            role="dialog"
+            aria-modal="true"
+            @click.self="showRemoveModal = false"
+        >
+            <div class="mx-4 w-full max-w-sm border-2 border-[#111] bg-white p-6" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+                <h2 class="mb-1 text-lg font-bold text-[#111]">{{ t('settings.remove') }}</h2>
+                <p class="mb-4 text-sm text-[#555]">{{ t('settings.remove_device_confirm', { device: removeTarget.label }) }}</p>
+
+                <div class="mb-4 flex justify-center">
+                    <PvInputOtp v-model="removeCode" :length="6" integer-only />
+                </div>
+
+                <div class="flex gap-3">
+                    <PvButton severity="secondary" class="flex-1" @click="showRemoveModal = false">{{ t('settings.cancel') }}</PvButton>
+                    <PvButton class="flex-1" :disabled="removeCode.length !== 6" @click="confirmRemoveDevice">{{ t('settings.remove') }}</PvButton>
+                </div>
+            </div>
+        </div>
     </div>
 </template>

@@ -10,6 +10,7 @@ import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import InputOtp from 'primevue/inputotp'
 import FloatLabel from 'primevue/floatlabel'
+import SelectButton from 'primevue/selectbutton'
 import Toast from 'primevue/toast'
 import en from '@/i18n/en'
 
@@ -49,6 +50,7 @@ export function mountWithPlugins(component: any, options?: any) {
                 PvPassword: Password,
                 PvInputOtp: InputOtp,
                 PvFloatLabel: FloatLabel,
+                PvSelectButton: SelectButton,
                 PvToast: Toast,
             },
         },
