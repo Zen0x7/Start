@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { api } from '@/services/api'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
@@ -31,10 +33,10 @@ async function resendEmail() {
             '/auth/resend-verification',
             { email: email.value },
         )
-        resendMessage.value = res.message || 'Correo de verificación reenviado.'
+        resendMessage.value = res.message || t('verify.resent')
     } catch (err: unknown) {
         const e = err as Error & { data?: { message?: string } }
-        resendError.value = e.data?.message || e.message || 'Error al reenviar el correo.'
+        resendError.value = e.data?.message || e.message || t('errors.generic')
     } finally {
         resendLoading.value = false
     }
@@ -51,14 +53,13 @@ async function resendEmail() {
             </div>
 
             <h1 class="text-2xl font-bold text-gray-900">
-                Antes de continuar deberás confirmar tu correo electrónico
+                {{ t('verify.waiting') }}
             </h1>
 
             <p class="text-gray-600">
-                Hemos enviado un enlace de verificación a
+                {{ t('verify.sent_to') }}
                 <strong class="text-gray-900">{{ email }}</strong>.
-                Revisa tu bandeja de entrada y haz clic en el botón
-                "Confirmar Correo Electrónico".
+                {{ t('verify.check_inbox') }}
             </p>
 
             <p
@@ -80,15 +81,15 @@ async function resendEmail() {
                 class="rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
                 @click="resendEmail"
             >
-                {{ resendLoading ? 'Enviando...' : 'Reenviar correo de verificación' }}
+                {{ resendLoading ? t('verify.sending') : t('verify.resend') }}
             </button>
 
             <p class="text-xs text-gray-500">
-                ¿No es tu correo?
+                {{ t('verify.wrong_account') }}
                 <router-link
                     :to="{ name: 'register' }"
                     class="text-blue-600 hover:underline"
-                >Crear cuenta con otro correo</router-link>
+                >{{ t('verify.create_another') }}</router-link>
             </p>
         </div>
     </main>

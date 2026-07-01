@@ -36,11 +36,11 @@ class TotpUsageController extends Controller
         $device = $totp->verifyAny($user, $validated['totp_code']);
 
         if ($device === null) {
-            throw new HttpException(403, 'El código TOTP no es válido.');
+            throw new HttpException(403, __('totp.wrong_code'));
         }
 
         static::log($user, $device, $validated['action'], $request);
 
-        return response()->json(['message' => 'Código TOTP verificado exitosamente.']);
+        return response()->json(['message' => __('totp.verified')]);
     }
 }

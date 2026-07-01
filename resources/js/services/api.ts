@@ -8,6 +8,22 @@ interface ApiResponse<T = unknown> {
 class ApiClient {
     private baseUrl = '/api'
 
+    private getLocale(): string {
+        try {
+            const raw = localStorage.getItem('app_locale')
+            if (raw && raw.startsWith('"') && raw.endsWith('"')) {
+                return JSON.parse(raw)
+            }
+            if (raw) return raw
+            if (typeof navigator !== 'undefined' && navigator.language) {
+                return navigator.language.split('-')[0]
+            }
+            return 'en'
+        } catch {
+            return 'en'
+        }
+    }
+
     private async request<T>(
         method: string,
         path: string,
@@ -15,6 +31,11 @@ class ApiClient {
     ): Promise<ApiResponse<T>> {
         const headers: Record<string, string> = {
             Accept: 'application/json',
+        }
+
+        const locale = this.getLocale()
+        if (locale) {
+            headers['X-Locale'] = locale
         }
 
         const token = localStorage.getItem('auth_token')

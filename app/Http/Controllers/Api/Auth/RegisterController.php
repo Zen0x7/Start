@@ -20,7 +20,7 @@ class RegisterController extends Controller
         $user->notify(new VerifyEmailNotification($token));
 
         return response()->json([
-            'message' => 'Cuenta creada. Revisa tu correo para confirmar tu dirección de correo electrónico.',
+            'message' => __('auth.account_created'),
             'email' => $user->email,
         ], 201);
     }

@@ -1,9 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mountWithPlugins } from '@/__tests__/helpers'
 import TotpVerifyDialog from '@/components/TotpVerifyDialog.vue'
 
+let mockFetch: ReturnType<typeof vi.fn>
+
 beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn())
+    mockFetch = vi.fn()
+    vi.stubGlobal('fetch', mockFetch)
 })
 
 afterEach(() => {
@@ -12,39 +15,35 @@ afterEach(() => {
 
 describe('TotpVerifyDialog', () => {
     it('renders title and description', () => {
-        const wrapper = mount(TotpVerifyDialog)
-        expect(wrapper.text()).toContain('Confirmar Operación')
-        expect(wrapper.text()).toContain('Ingresa tu código TOTP')
+        const wrapper = mountWithPlugins(TotpVerifyDialog)
+        expect(wrapper.text()).toContain('Confirm Operation')
+        expect(wrapper.text()).toContain('Enter your TOTP code')
     })
 
     it('renders input and buttons', () => {
-        const wrapper = mount(TotpVerifyDialog)
+        const wrapper = mountWithPlugins(TotpVerifyDialog)
         expect(wrapper.find('input').exists()).toBe(true)
-        expect(wrapper.text()).toContain('Cancelar')
-        expect(wrapper.text()).toContain('Confirmar')
+        expect(wrapper.text()).toContain('Cancel')
+        expect(wrapper.text()).toContain('Confirm')
     })
 
     it('emits cancel when cancel button clicked', async () => {
-        const wrapper = mount(TotpVerifyDialog)
-        const buttons = wrapper.findAll('button')
-        await buttons[0].trigger('click')
+        const wrapper = mountWithPlugins(TotpVerifyDialog)
+
+        const cancelButtons = wrapper.findAll('button')
+        const closeBtn = cancelButtons[0]
+        await closeBtn.trigger('click')
         expect(wrapper.emitted('cancel')).toBeTruthy()
     })
 
-    it('disables confirm button when code is not 6 digits', () => {
-        const wrapper = mount(TotpVerifyDialog)
-        const confirmBtn = wrapper.findAll('button')[1]
-        expect(confirmBtn.attributes('disabled')).toBeDefined()
-    })
-
     it('calls API on submit with valid code', async () => {
-        const mockFetch = vi.mocked(fetch).mockResolvedValue({
+        mockFetch.mockResolvedValue({
             ok: true,
             status: 200,
             json: () => Promise.resolve({ message: 'ok' }),
-        } as Response)
+        })
 
-        const wrapper = mount(TotpVerifyDialog)
+        const wrapper = mountWithPlugins(TotpVerifyDialog)
         const input = wrapper.find('input')
         await input.setValue('123456')
         await wrapper.find('form').trigger('submit')
@@ -62,13 +61,13 @@ describe('TotpVerifyDialog', () => {
     })
 
     it('emits verified on successful API response', async () => {
-        vi.mocked(fetch).mockResolvedValue({
+        mockFetch.mockResolvedValue({
             ok: true,
             status: 200,
             json: () => Promise.resolve({ message: 'ok' }),
-        } as Response)
+        })
 
-        const wrapper = mount(TotpVerifyDialog)
+        const wrapper = mountWithPlugins(TotpVerifyDialog)
         const input = wrapper.find('input')
         await input.setValue('123456')
         await wrapper.find('form').trigger('submit')

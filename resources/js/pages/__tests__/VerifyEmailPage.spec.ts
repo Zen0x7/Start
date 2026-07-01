@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
 import VerifyEmailPage from '@/pages/auth/VerifyEmailPage.vue'
+import { i18n } from '@/__tests__/helpers'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -13,9 +14,12 @@ const router = createRouter({
     ],
 })
 
+let mockFetch: ReturnType<typeof vi.fn>
+
 beforeEach(() => {
     setActivePinia(createPinia())
-    vi.stubGlobal('fetch', vi.fn())
+    mockFetch = vi.fn()
+    vi.stubGlobal('fetch', mockFetch)
 })
 
 afterEach(() => {
@@ -25,40 +29,62 @@ afterEach(() => {
 describe('VerifyEmailPage', () => {
     it('renders waiting message', () => {
         const wrapper = mount(VerifyEmailPage, {
-            global: { plugins: [router] },
+            global: { plugins: [router, i18n] },
         })
         expect(wrapper.text()).toContain(
-            'Antes de continuar deberás confirmar tu correo electrónico',
+            'Before continuing, you need to confirm your email address.',
         )
     })
 
     it('renders resend button', () => {
         const wrapper = mount(VerifyEmailPage, {
-            global: { plugins: [router] },
+            global: { plugins: [router, i18n] },
         })
-        expect(wrapper.text()).toContain('Reenviar correo de verificación')
+        expect(wrapper.text()).toContain('Resend Verification Email')
     })
 
     it('shows success message after resend', async () => {
-        vi.mocked(fetch).mockResolvedValue({
+        mockFetch.mockResolvedValue({
             ok: true,
             status: 200,
             json: () =>
                 Promise.resolve({
-                    message: 'Correo de verificación reenviado.',
+                    message: 'Verification email resent.',
                 }),
-        } as Response)
+        })
 
         await router.push('/email/verify?email=test@example.com')
 
         const wrapper = mount(VerifyEmailPage, {
-            global: { plugins: [router] },
+            global: { plugins: [router, i18n] },
         })
 
         await wrapper.find('button').trigger('click')
         await new Promise((r) => setTimeout(r, 50))
 
         expect(wrapper.text()).toContain('test@example.com')
-        expect(wrapper.text()).toContain('Correo de verificación reenviado.')
+        expect(wrapper.text()).toContain('Verification email resent.')
+    })
+
+    it('shows error when resend fails', async () => {
+        mockFetch.mockResolvedValue({
+            ok: false,
+            status: 429,
+            json: () =>
+                Promise.resolve({
+                    message: 'Too many requests.',
+                }),
+        })
+
+        await router.push('/email/verify?email=test@example.com')
+
+        const wrapper = mount(VerifyEmailPage, {
+            global: { plugins: [router, i18n] },
+        })
+
+        await wrapper.find('button').trigger('click')
+        await new Promise((r) => setTimeout(r, 50))
+
+        expect(wrapper.text()).toContain('Too many requests.')
     })
 })

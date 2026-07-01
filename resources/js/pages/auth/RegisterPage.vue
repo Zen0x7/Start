@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
+import { useFormErrors } from '@/composables/useFormErrors'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
+const { generalError, setErrors, clearErrors, fieldError, hasError } = useFormErrors()
 
 const name = ref('')
 const email = ref('')
 const password = ref('')
 const passwordConfirmation = ref('')
 const loading = ref(false)
-const error = ref('')
 
 async function handleSubmit() {
-    error.value = ''
+    clearErrors()
     loading.value = true
 
     try {
@@ -26,11 +29,7 @@ async function handleSubmit() {
         )
         router.push({ name: 'verify-email', query: { email: registeredEmail } })
     } catch (err: unknown) {
-        const e = err as Error & { data?: { errors?: Record<string, string[]> } }
-        const messages = e.data?.errors
-            ? Object.values(e.data.errors).flat().join(', ')
-            : e.message || 'Error al registrar'
-        error.value = messages
+        setErrors(err)
     } finally {
         loading.value = false
     }
@@ -40,89 +39,105 @@ async function handleSubmit() {
 <template>
     <main class="mx-auto flex min-h-screen max-w-md items-center px-4">
         <form
-            class="w-full space-y-6"
+            class="flex w-full flex-col gap-5"
             @submit.prevent="handleSubmit"
         >
-            <h1 class="text-center text-2xl font-bold">Crear Cuenta</h1>
+            <h1 class="text-center text-2xl font-bold">{{ t('auth.register_title') }}</h1>
 
-            <p
-                v-if="error"
-                class="rounded-lg bg-red-50 p-3 text-sm text-red-600"
+            <PvMessage
+                v-if="generalError"
+                severity="error"
+                variant="simple"
+                :closable="false"
             >
-                {{ error }}
-            </p>
+                {{ generalError }}
+            </PvMessage>
 
             <div>
-                <label
-                    for="name"
-                    class="mb-1 block text-sm font-medium text-gray-700"
-                >Nombre</label>
-                <input
-                    id="name"
-                    v-model="name"
-                    type="text"
-                    required
-                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
-                />
+                <PvFloatLabel>
+                    <PvInputText
+                        id="name"
+                        v-model="name"
+                        class="w-full"
+                        :class="{ 'p-invalid': hasError('name') }"
+                        aria-required="true"
+                    />
+                    <label for="name">{{ t('auth.name') }}</label>
+                </PvFloatLabel>
+                <small
+                    v-if="hasError('name')"
+                    class="text-red-500"
+                >{{ fieldError('name') }}</small>
             </div>
 
             <div>
-                <label
-                    for="email"
-                    class="mb-1 block text-sm font-medium text-gray-700"
-                >Correo Electrónico</label>
-                <input
-                    id="email"
-                    v-model="email"
-                    type="email"
-                    required
-                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
-                />
+                <PvFloatLabel>
+                    <PvInputText
+                        id="email"
+                        v-model="email"
+                        class="w-full"
+                        :class="{ 'p-invalid': hasError('email') }"
+                        aria-required="true"
+                    />
+                    <label for="email">{{ t('auth.email') }}</label>
+                </PvFloatLabel>
+                <small
+                    v-if="hasError('email')"
+                    class="text-red-500"
+                >{{ fieldError('email') }}</small>
             </div>
 
             <div>
-                <label
-                    for="password"
-                    class="mb-1 block text-sm font-medium text-gray-700"
-                >Contraseña</label>
-                <input
-                    id="password"
-                    v-model="password"
-                    type="password"
-                    required
-                    minlength="8"
-                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
-                />
+                <PvFloatLabel>
+                    <PvPassword
+                        id="password"
+                        v-model="password"
+                        class="w-full"
+                        :class="{ 'p-invalid': hasError('password') }"
+                        :feedback="false"
+                        toggle-mask
+                        aria-required="true"
+                    />
+                    <label for="password">{{ t('auth.password') }}</label>
+                </PvFloatLabel>
+                <small
+                    v-if="hasError('password')"
+                    class="text-red-500"
+                >{{ fieldError('password') }}</small>
             </div>
 
             <div>
-                <label
-                    for="password-confirmation"
-                    class="mb-1 block text-sm font-medium text-gray-700"
-                >Confirmar Contraseña</label>
-                <input
-                    id="password-confirmation"
-                    v-model="passwordConfirmation"
-                    type="password"
-                    required
-                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
-                />
+                <PvFloatLabel>
+                    <PvPassword
+                        id="password-confirmation"
+                        v-model="passwordConfirmation"
+                        class="w-full"
+                        :class="{ 'p-invalid': hasError('password') }"
+                        :feedback="false"
+                        toggle-mask
+                        aria-required="true"
+                    />
+                    <label for="password-confirmation">{{ t('auth.password_confirm') }}</label>
+                </PvFloatLabel>
+                <small
+                    v-if="hasError('password')"
+                    class="text-red-500"
+                >{{ fieldError('password') }}</small>
             </div>
 
-            <button
+            <PvButton
                 type="submit"
-                :disabled="loading"
-                class="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-                {{ loading ? 'Registrando...' : 'Registrarse' }}
-            </button>
+                :loading="loading"
+                class="w-full"
+                :label="loading ? t('auth.registering') : t('auth.register')"
+            />
 
             <p class="text-center text-sm text-gray-600">
-                ¿Ya tienes cuenta?
+                {{ t('auth.login_link') }}
                 <router-link
                     :to="{ name: 'login' }"
                     class="text-blue-600 hover:underline"
-                >Iniciar Sesión</router-link>
+                >{{ t('auth.login') }}</router-link>
             </p>
         </form>
     </main>

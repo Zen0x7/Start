@@ -13,6 +13,7 @@ function mockFetch(status: number, body: unknown) {
 
 beforeEach(() => {
     localStorage.clear()
+    vi.stubGlobal('navigator', { language: 'en' })
 })
 
 afterEach(() => {
@@ -25,10 +26,13 @@ describe('api', () => {
 
         const result = await api.get('/test')
 
-        expect(mock).toHaveBeenCalledWith('/api/test', {
-            method: 'GET',
-            headers: { Accept: 'application/json' },
-        })
+        expect(mock).toHaveBeenCalledWith(
+            '/api/test',
+            expect.objectContaining({
+                method: 'GET',
+                headers: expect.objectContaining({ Accept: 'application/json' }),
+            }),
+        )
         expect(result).toEqual({ data: 'hello' })
     })
 
@@ -37,14 +41,17 @@ describe('api', () => {
 
         const result = await api.post('/test', { name: 'ian' })
 
-        expect(mock).toHaveBeenCalledWith('/api/test', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name: 'ian' }),
-        })
+        expect(mock).toHaveBeenCalledWith(
+            '/api/test',
+            expect.objectContaining({
+                method: 'POST',
+                headers: expect.objectContaining({
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                }),
+                body: JSON.stringify({ name: 'ian' }),
+            }),
+        )
         expect(result).toEqual({ id: 1 })
     })
 
@@ -54,13 +61,50 @@ describe('api', () => {
 
         await api.get('/test')
 
-        expect(mock).toHaveBeenCalledWith('/api/test', {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                Authorization: 'Bearer test-token-123',
-            },
-        })
+        expect(mock).toHaveBeenCalledWith(
+            '/api/test',
+            expect.objectContaining({
+                method: 'GET',
+                headers: expect.objectContaining({
+                    Accept: 'application/json',
+                    Authorization: 'Bearer test-token-123',
+                }),
+            }),
+        )
+    })
+
+    it('makes PUT request', async () => {
+        const mock = mockFetch(200, { updated: true })
+
+        const result = await api.put('/test/1', { name: 'new' })
+
+        expect(mock).toHaveBeenCalledWith(
+            '/api/test/1',
+            expect.objectContaining({
+                method: 'PUT',
+                headers: expect.objectContaining({
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                }),
+                body: JSON.stringify({ name: 'new' }),
+            }),
+        )
+        expect(result).toEqual({ updated: true })
+    })
+
+    it('makes DELETE request', async () => {
+        const mock = mockFetch(200, { deleted: true })
+
+        const result = await api.delete('/test/1')
+
+        expect(mock).toHaveBeenCalledWith(
+            '/api/test/1',
+            expect.objectContaining({
+                method: 'DELETE',
+                headers: expect.objectContaining({ Accept: 'application/json' }),
+            }),
+        )
+        expect(result).toEqual({ deleted: true })
     })
 
     it('throws error with message on failure', async () => {
@@ -77,34 +121,6 @@ describe('api', () => {
             expect(e.status).toBe(422)
             expect(e.message).toBe('Validation failed')
         }
-    })
-
-    it('makes PUT request', async () => {
-        const mock = mockFetch(200, { updated: true })
-
-        const result = await api.put('/test/1', { name: 'new' })
-
-        expect(mock).toHaveBeenCalledWith('/api/test/1', {
-            method: 'PUT',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name: 'new' }),
-        })
-        expect(result).toEqual({ updated: true })
-    })
-
-    it('makes DELETE request', async () => {
-        const mock = mockFetch(200, { deleted: true })
-
-        const result = await api.delete('/test/1')
-
-        expect(mock).toHaveBeenCalledWith('/api/test/1', {
-            method: 'DELETE',
-            headers: { Accept: 'application/json' },
-        })
-        expect(result).toEqual({ deleted: true })
     })
 
     it('throws plain error when no message', async () => {

@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { api } from '@/services/api'
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
     (e: 'verified'): void
     (e: 'cancel'): void
 }>()
 
+const visible = ref(true)
 const totpCode = ref('')
 const loading = ref(false)
 const error = ref('')
@@ -21,26 +25,51 @@ async function handleSubmit() {
             action: 'confirm_operation',
         })
         emit('verified')
+        visible.value = false
     } catch (err: unknown) {
         const e = err as Error & { data?: { message?: string } }
-        error.value = e.data?.message || e.message || 'Código inválido.'
+        error.value = e.data?.message || e.message || t('errors.generic')
     } finally {
         loading.value = false
     }
 }
+
+function onHide() {
+    emit('cancel')
+}
 </script>
 
 <template>
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div
+        v-if="visible"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="t('totp.confirm_action')"
+        @click.self="onHide"
+    >
         <div class="w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl">
-            <h2 class="mb-2 text-lg font-bold">Confirmar Operación</h2>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold">{{ t('totp.confirm_action') }}</h2>
+                <button
+                    aria-label="Close"
+                    class="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    @click="onHide"
+                >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
             <p class="mb-4 text-sm text-gray-600">
-                Ingresa tu código TOTP para confirmar esta acción.
+                {{ t('totp.confirm_action_desc') }}
             </p>
 
             <p
                 v-if="error"
                 class="mb-3 rounded-lg bg-red-50 p-2 text-sm text-red-600"
+                role="alert"
             >
                 {{ error }}
             </p>
@@ -55,24 +84,27 @@ async function handleSubmit() {
                     required
                     autofocus
                     class="mb-4 w-full rounded-lg border border-gray-300 px-4 py-2 text-center text-2xl tracking-widest focus:border-blue-500 focus:outline-none"
-                    placeholder="000000"
+                    :placeholder="t('totp.code_placeholder')"
+                    :aria-label="t('totp.code_placeholder')"
                 />
 
                 <div class="flex gap-3">
-                    <button
+                    <PvButton
                         type="button"
-                        class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
-                        @click="emit('cancel')"
+                        severity="secondary"
+                        class="flex-1"
+                        @click="onHide"
                     >
-                        Cancelar
-                    </button>
-                    <button
+                        {{ t('totp.cancel') }}
+                    </PvButton>
+                    <PvButton
                         type="submit"
+                        :loading="loading"
                         :disabled="loading || totpCode.length !== 6"
-                        class="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+                        class="flex-1"
                     >
-                        {{ loading ? '...' : 'Confirmar' }}
-                    </button>
+                        {{ t('totp.confirm') }}
+                    </PvButton>
                 </div>
             </form>
         </div>

@@ -19,17 +19,17 @@ class VerifyEmailController extends Controller
         try {
             $payload = $jwt->decryptAndVerify($token);
         } catch (\RuntimeException $e) {
-            throw new HttpException(400, 'El enlace de verificación no es válido o ha expirado.');
+            throw new HttpException(400, __('verify.invalid_link'));
         }
 
         if (($payload['type'] ?? null) !== 'request') {
-            throw new HttpException(400, 'Token inválido.');
+            throw new HttpException(400, __('verify.invalid_token'));
         }
 
         $email = $payload['payload']['data']['email'] ?? null;
 
         if ($email === null) {
-            throw new HttpException(400, 'Token inválido: falta el correo electrónico.');
+            throw new HttpException(400, __('verify.token_missing_email'));
         }
 
         return response()->json(['email' => $email]);
@@ -54,21 +54,21 @@ class VerifyEmailController extends Controller
         $email = $payload['payload']['data']['email'] ?? null;
 
         if ($email === null) {
-            throw new HttpException(400, 'Token inválido.');
+            throw new HttpException(400, __('verify.invalid_token'));
         }
 
         $user = User::where('email', $email)->first();
 
         if ($user === null) {
-            throw new HttpException(404, 'Usuario no encontrado.');
+            throw new HttpException(404, __('verify.user_not_found'));
         }
 
         if ($user->email_verified_at !== null) {
-            return response()->json(['message' => 'El correo electrónico ya está verificado.']);
+            return response()->json(['message' => __('verify.already_verified')]);
         }
 
         if (! password_verify($password, $user->password)) {
-            throw new HttpException(403, 'La contraseña ingresada es incorrecta.');
+            throw new HttpException(403, __('verify.wrong_password'));
         }
 
         $user->email_verified_at = now();
@@ -77,7 +77,7 @@ class VerifyEmailController extends Controller
         $tempToken = $jwt->buildTotpChallengeToken((string) $user->id);
 
         return response()->json([
-            'message' => 'Correo electrónico confirmado exitosamente.',
+            'message' => __('verify.confirmed'),
             'totp_status' => 'setup_required',
             'temp_token' => $tempToken,
             'user' => [
@@ -97,7 +97,7 @@ class VerifyEmailController extends Controller
         if (RateLimiter::tooManyAttempts($rateLimitKey, 3)) {
             $seconds = RateLimiter::availableIn($rateLimitKey);
 
-            throw new HttpException(429, 'Demasiadas solicitudes. Intenta de nuevo en '.ceil($seconds / 60).' minutos.');
+            throw new HttpException(429, __('verify.too_many_requests', ['minutes' => ceil($seconds / 60)]));
         }
 
         RateLimiter::hit($rateLimitKey, 3600 * 6);
@@ -105,13 +105,13 @@ class VerifyEmailController extends Controller
         $user = User::where('email', $email)->first();
 
         if ($user->email_verified_at !== null) {
-            return response()->json(['message' => 'El correo electrónico ya está verificado.']);
+            return response()->json(['message' => __('verify.already_verified')]);
         }
 
         $token = $jwt->buildEmailVerificationToken($email);
 
         $user->notify(new VerifyEmailNotification($token));
 
-        return response()->json(['message' => 'Correo de verificación reenviado.']);
+        return response()->json(['message' => __('verify.resent')]);
     }
 }

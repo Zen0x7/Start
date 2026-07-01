@@ -18,13 +18,13 @@ class LoginController extends Controller
 
         if ($user === null || ! password_verify($request->input('password'), $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Las credenciales proporcionadas son incorrectas.'],
+                'email' => [__('auth.credentials')],
             ]);
         }
 
         if ($user->email_verified_at === null) {
             return response()->json([
-                'message' => 'Antes de continuar deberás confirmar tu correo electrónico.',
+                'message' => __('auth.unverified'),
                 'email' => $user->email,
             ], 403);
         }

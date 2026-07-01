@@ -70,7 +70,7 @@ class LoginTest extends TestCase
 
         $response->assertStatus(403);
         $response->assertJson([
-            'message' => 'Antes de continuar deberás confirmar tu correo electrónico.',
+            'message' => __('auth.unverified'),
         ]);
     }
 

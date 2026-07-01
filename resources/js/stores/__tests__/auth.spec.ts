@@ -15,6 +15,7 @@ function mockFetch(status: number, body: unknown) {
 beforeEach(() => {
     setActivePinia(createPinia())
     localStorage.clear()
+    vi.stubGlobal('navigator', { language: 'en' })
 })
 
 afterEach(() => {
@@ -45,19 +46,22 @@ describe('auth store', () => {
         expect(result.email).toBe('ian@example.com')
         expect(auth.isAuthenticated).toBe(false)
 
-        expect(mock).toHaveBeenCalledWith('/api/auth/register', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: 'Ian',
-                email: 'ian@example.com',
-                password: 'secret123',
-                password_confirmation: 'secret123',
+        expect(mock).toHaveBeenCalledWith(
+            '/api/auth/register',
+            expect.objectContaining({
+                method: 'POST',
+                headers: expect.objectContaining({
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                }),
+                body: JSON.stringify({
+                    name: 'Ian',
+                    email: 'ian@example.com',
+                    password: 'secret123',
+                    password_confirmation: 'secret123',
+                }),
             }),
-        })
+        )
     })
 
     it('login returns totp_status and temp_token', async () => {
@@ -70,7 +74,6 @@ describe('auth store', () => {
         const auth = useAuthStore()
         const result = await auth.login('ian@example.com', 'secret123')
 
-        expect(result.verified).toBe(false)
         const r = result as { totp_status: string; temp_token: string; user: { name: string } }
         expect(r.totp_status).toBe('verify_required')
         expect(r.temp_token).toBe('challenge-token')
@@ -78,7 +81,7 @@ describe('auth store', () => {
         expect(auth.isAuthenticated).toBe(false)
     })
 
-    it('login with unverified user returns verified=false', async () => {
+    it('login with unverified user returns email', async () => {
         mockFetch(403, {
             message:
                 'Antes de continuar deberás confirmar tu correo electrónico.',
@@ -87,7 +90,8 @@ describe('auth store', () => {
         const auth = useAuthStore()
         const result = await auth.login('ian@example.com', 'secret123')
 
-        expect(result.verified).toBe(false)
+        const r = result as { email: string }
+        expect(r.email).toBeDefined()
         expect(auth.isAuthenticated).toBe(false)
     })
 

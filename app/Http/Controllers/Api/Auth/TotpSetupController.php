@@ -18,7 +18,7 @@ class TotpSetupController extends Controller
         $user = $this->resolveUser($request, $jwt);
 
         if ($user->totpDevices()->exists()) {
-            throw new HttpException(400, 'Ya tienes un dispositivo TOTP configurado.');
+            throw new HttpException(400, __('totp.already_configured'));
         }
 
         $cert = $certificates->issue($user->id);
@@ -44,13 +44,13 @@ class TotpSetupController extends Controller
 
         if (! $certificates->verify($cert)) {
             $cert->delete();
-            throw new HttpException(400, 'El certificado ha expirado. Solicita uno nuevo.');
+            throw new HttpException(400, __('totp.expired_cert'));
         }
 
         $secret = $certificates->decryptSecret($cert, $validated['encrypted_secret']);
 
         if (! $totp->verify($secret, $validated['totp_code'])) {
-            throw new HttpException(400, 'El código TOTP no es válido. Escanea el código QR nuevamente.');
+            throw new HttpException(400, __('totp.invalid_code'));
         }
 
         $totp->createDevice($user, $secret);
@@ -60,7 +60,7 @@ class TotpSetupController extends Controller
         $authToken = $jwt->buildAuthToken((string) $user->id);
 
         return response()->json([
-            'message' => 'Dispositivo TOTP configurado exitosamente.',
+            'message' => __('totp.configured'),
             'token' => $authToken,
             'user' => [
                 'id' => $user->id,
@@ -75,7 +75,7 @@ class TotpSetupController extends Controller
         $token = $request->input('temp_token') ?? $request->bearerToken();
 
         if ($token === null) {
-            throw new HttpException(401, 'Token requerido.');
+            throw new HttpException(401, __('totp.token_required'));
         }
 
         $payload = $jwt->validateTotpChallengeToken($token);

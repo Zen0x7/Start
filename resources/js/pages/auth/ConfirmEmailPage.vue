@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import { useFormErrors } from '@/composables/useFormErrors'
 import { api } from '@/services/api'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
+const { generalError, fieldError, hasError, setErrors, clearErrors } = useFormErrors()
 
 const token = route.params.token as string
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
-const error = ref('')
 const verified = ref(false)
-const tempToken = ref('')
 
 onMounted(async () => {
     try {
@@ -21,12 +23,13 @@ onMounted(async () => {
         )
         email.value = res.data?.email ?? ''
     } catch {
-        error.value = 'El enlace de verificación no es válido o ha expirado.'
+        clearErrors()
+        generalError.value = t('verify.invalid_link')
     }
 })
 
 async function handleSubmit() {
-    error.value = ''
+    clearErrors()
     loading.value = true
 
     try {
@@ -35,7 +38,6 @@ async function handleSubmit() {
             { token, password: password.value },
         )
         const data = res as unknown as { temp_token: string; user: { name: string; email: string } }
-        tempToken.value = data.temp_token
         verified.value = true
 
         setTimeout(() => {
@@ -45,8 +47,7 @@ async function handleSubmit() {
             })
         }, 1500)
     } catch (err: unknown) {
-        const e = err as Error & { data?: { message?: string } }
-        error.value = e.data?.message || e.message || 'Error al verificar el correo.'
+        setErrors(err)
     } finally {
         loading.value = false
     }
@@ -55,15 +56,19 @@ async function handleSubmit() {
 
 <template>
     <main class="mx-auto flex min-h-screen max-w-md items-center px-4">
-        <template v-if="error && !email">
+        <template v-if="generalError && !email && !loading">
             <div class="w-full space-y-4 text-center">
-                <p class="rounded-lg bg-red-50 p-4 text-red-600">
-                    {{ error }}
-                </p>
+                <PvMessage
+                    severity="error"
+                    variant="simple"
+                    :closable="false"
+                >
+                    {{ generalError }}
+                </PvMessage>
                 <router-link
                     :to="{ name: 'register' }"
                     class="text-blue-600 hover:underline"
-                >Crear una nueva cuenta</router-link>
+                >{{ t('verify.create_another') }}</router-link>
             </div>
         </template>
 
@@ -75,55 +80,59 @@ async function handleSubmit() {
                     </svg>
                 </div>
                 <h1 class="text-2xl font-bold text-gray-900">
-                    Correo Electrónico Confirmado
+                    {{ t('verify.confirmed') }}
                 </h1>
-                <p class="text-gray-600">Configura tu autenticación de dos factores...</p>
+                <p class="text-gray-600">{{ t('verify.redirecting_setup') }}</p>
             </div>
         </template>
 
         <template v-else>
             <form
-                class="w-full space-y-6"
+                class="flex w-full flex-col gap-5"
                 @submit.prevent="handleSubmit"
             >
                 <h1 class="text-center text-2xl font-bold">
-                    Confirmar Correo Electrónico
+                    {{ t('verify.confirm_title') }}
                 </h1>
 
                 <p class="text-center text-gray-600">
-                    Para confirmar tu correo
-                    <strong class="text-gray-900">{{ email }}</strong>,
-                    ingresa tu contraseña.
+                    {{ t('verify.confirm_desc', { email }) }}
                 </p>
 
-                <p
-                    v-if="error"
-                    class="rounded-lg bg-red-50 p-3 text-sm text-red-600"
+                <PvMessage
+                    v-if="generalError"
+                    severity="error"
+                    variant="simple"
+                    :closable="false"
                 >
-                    {{ error }}
-                </p>
+                    {{ generalError }}
+                </PvMessage>
 
                 <div>
-                    <label
-                        for="password"
-                        class="mb-1 block text-sm font-medium text-gray-700"
-                    >Contraseña</label>
-                    <input
-                        id="password"
-                        v-model="password"
-                        type="password"
-                        required
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
-                    />
+                    <PvFloatLabel>
+                        <PvPassword
+                            id="password"
+                            v-model="password"
+                            class="w-full"
+                            :class="{ 'p-invalid': hasError('password') }"
+                            :feedback="false"
+                            toggle-mask
+                            aria-required="true"
+                        />
+                        <label for="password">{{ t('auth.password') }}</label>
+                    </PvFloatLabel>
+                    <small
+                        v-if="hasError('password')"
+                        class="text-red-500"
+                    >{{ fieldError('password') }}</small>
                 </div>
 
-                <button
+                <PvButton
                     type="submit"
-                    :disabled="loading"
-                    class="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-                >
-                    {{ loading ? 'Confirmando...' : 'Confirmar Correo Electrónico' }}
-                </button>
+                    :loading="loading"
+                    class="w-full"
+                    :label="loading ? t('verify.confirming') : t('verify.confirm_button')"
+                />
             </form>
         </template>
     </main>

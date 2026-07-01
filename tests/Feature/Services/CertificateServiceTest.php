@@ -64,4 +64,17 @@ class CertificateServiceTest extends TestCase
 
         $this->assertFalse($this->certificates->verify($cert->fresh()));
     }
+
+    public function test_public_key_jwk_rejects_invalid_key(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Invalid public key in certificate');
+
+        $user = User::factory()->create();
+        $cert = $this->certificates->issue($user->id);
+        $cert->public_key = 'not a valid PEM key';
+        $cert->save();
+
+        $this->certificates->publicKeyJwk($cert->fresh());
+    }
 }

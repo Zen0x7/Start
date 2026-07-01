@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
@@ -21,7 +23,7 @@ async function handleSubmit() {
         router.push({ name: 'dashboard' })
     } catch (err: unknown) {
         const e = err as Error & { data?: { message?: string } }
-        error.value = e.data?.message || e.message || 'Código inválido.'
+        error.value = e.data?.message || e.message || t('errors.generic')
     } finally {
         loading.value = false
     }
@@ -40,41 +42,36 @@ async function handleSubmit() {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
-                <h1 class="mt-4 text-2xl font-bold">Autenticación de Dos Factores</h1>
+                <h1 class="mt-4 text-2xl font-bold">{{ t('totp.verify_title') }}</h1>
                 <p class="mt-2 text-gray-600">
-                    Ingresa el código de 6 dígitos de tu aplicación autenticadora.
+                    {{ t('totp.verify_desc') }}
                 </p>
             </div>
 
             <p
                 v-if="error"
                 class="rounded-lg bg-red-50 p-3 text-sm text-red-600"
+                role="alert"
             >
                 {{ error }}
             </p>
 
-            <div>
-                <input
-                    id="totp-code"
+            <div class="flex justify-center">
+                <PvInputOtp
                     v-model="totpCode"
-                    type="text"
-                    maxlength="6"
-                    inputmode="numeric"
-                    pattern="[0-9]*"
-                    required
-                    autofocus
-                    class="w-full rounded-lg border border-gray-300 px-4 py-2 text-center text-3xl tracking-[0.5em] focus:border-blue-500 focus:outline-none"
-                    placeholder="000000"
+                    :length="6"
+                    integer-only
+                    :aria-label="t('totp.code_placeholder')"
                 />
             </div>
 
-            <button
+            <PvButton
                 type="submit"
+                :loading="loading"
                 :disabled="loading || totpCode.length !== 6"
-                class="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-            >
-                {{ loading ? 'Verificando...' : 'Verificar' }}
-            </button>
+                class="w-full"
+                :label="loading ? t('totp.verifying') : t('totp.verify_code')"
+            />
         </form>
     </main>
 </template>

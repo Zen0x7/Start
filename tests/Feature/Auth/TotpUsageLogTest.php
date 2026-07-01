@@ -88,7 +88,7 @@ class TotpUsageLogTest extends TestCase
     public function test_confirm_action_with_invalid_code(): void
     {
         $this->expectException(HttpException::class);
-        $this->expectExceptionMessage('El código TOTP no es válido.');
+        $this->expectExceptionMessage(__('totp.wrong_code'));
 
         $user = User::factory()->create();
         $totp = TOTP::generate();

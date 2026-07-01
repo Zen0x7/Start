@@ -7,3 +7,18 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* PrimeVue Password full-width fix */
+.p-password,
+.p-password-input {
+    width: 100%;
+}
+
+.p-password {
+    display: flex;
+}
+
+.p-password-input {
+    flex: 1;
+}
+

@@ -3,6 +3,7 @@
 use App\Http\Middleware\EmailVerified;
 use App\Http\Middleware\JwtAuth;
 use App\Http\Middleware\RequireTotp;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\VerifyToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->api(prepend: [
+            SetLocale::class,
+        ]);
+
         $middleware->alias([
             'jwt.auth' => JwtAuth::class,
             'email.verified' => EmailVerified::class,
