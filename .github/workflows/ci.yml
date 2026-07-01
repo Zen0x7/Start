@@ -9,11 +9,7 @@ on:
 jobs:
     backend:
         runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                php: ['8.4']
-
-        name: PHP ${{ matrix.php }} — Laravel ${{ matrix.laravel }}
+        name: PHPUnit
 
         steps:
             - uses: actions/checkout@v4
@@ -21,43 +17,34 @@ jobs:
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: ${{ matrix.php }}
+                  php-version: '8.4'
                   extensions: mbstring, openssl, pdo, sqlite, gd
                   tools: composer:v2
                   coverage: pcov
 
-            - name: Get composer cache directory
-              id: composer-cache
-              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-            - name: Cache dependencies
+            - name: Cache composer
               uses: actions/cache@v4
               with:
-                  path: ${{ steps.composer-cache.outputs.dir }}
+                  path: ~/.cache/composer
                   key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
                   restore-keys: ${{ runner.os }}-composer-
 
             - name: Install dependencies
-              run: |
-                  composer install --no-progress --prefer-dist --no-interaction
+              run: composer install --no-progress --prefer-dist --no-interaction
 
-            - name: Prepare environment
+            - name: Prepare
               run: |
                   cp .env.example .env
                   php artisan key:generate --no-interaction
                   touch database/database.sqlite
                   php artisan migrate --no-interaction
 
-            - name: Run PHPUnit with coverage
+            - name: PHPUnit with coverage
               run: php artisan test --compact --coverage
               env:
-                  XDEBUG_MODE: coverage
                   DB_CONNECTION: sqlite
-                  DB_DATABASE: database/database.sqlite
+                  DB_DATABASE: ${{ github.workspace }}/database/database.sqlite
                   JWT_SIGNING_KEY: 6YRSnwQ7VAzkOlVnxLr4hatPIoK6w8j+uqiw16KbU4M=
-
-            - name: Run PHPStan
-              run: vendor/bin/phpstan analyse --memory-limit=2G --no-progress || true
 
     frontend:
         runs-on: ubuntu-latest
@@ -75,14 +62,10 @@ jobs:
               with:
                   node-version: ${{ matrix.node }}
 
-            - name: Get yarn cache path
-              id: yarn-cache
-              run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
             - name: Cache yarn
               uses: actions/cache@v4
               with:
-                  path: ${{ steps.yarn-cache.outputs.dir }}
+                  path: ~/.cache/yarn
                   key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
                   restore-keys: ${{ runner.os }}-yarn-
 
@@ -95,22 +78,9 @@ jobs:
             - name: Unit tests with coverage
               run: yarn test:unit:coverage
 
-            - name: Lint
-              run: npx prettier --check resources/js/ 2>/dev/null || true
-
     dusk:
         runs-on: ubuntu-latest
-        name: Dusk (screenshots)
-
-        services:
-            mysql:
-                image: mysql:8.0
-                env:
-                    MYSQL_ROOT_PASSWORD: password
-                    MYSQL_DATABASE: start_test
-                ports:
-                    - 3306:3306
-                options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+        name: Dusk
 
         steps:
             - uses: actions/checkout@v4
@@ -119,7 +89,7 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   php-version: '8.4'
-                  extensions: mbstring, openssl, pdo, mysql, gd
+                  extensions: mbstring, openssl, pdo, sqlite, gd
                   tools: composer:v2
 
             - name: Setup Node
@@ -127,28 +97,23 @@ jobs:
               with:
                   node-version: '22'
 
-            - name: Install PHP dependencies
+            - name: Install PHP deps
               run: composer install --no-progress --prefer-dist --no-interaction
 
-            - name: Install JS dependencies
+            - name: Install JS deps
               run: yarn install --frozen-lockfile
 
             - name: Build frontend
               run: yarn build
 
-            - name: Prepare .env
+            - name: Prepare environment
               run: |
                   cp .env.example .env
-                  sed -i 's/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/' .env
-                  sed -i 's/# DB_HOST=127.0.0.1/DB_HOST=127.0.0.1/' .env
-                  sed -i 's/# DB_PORT=3306/DB_PORT=3306/' .env
-                  sed -i 's/# DB_DATABASE=laravel/DB_DATABASE=start_test/' .env
-                  sed -i 's/# DB_USERNAME=root/DB_USERNAME=root/' .env
-                  sed -i 's/# DB_PASSWORD=/DB_PASSWORD=password/' .env
                   php artisan key:generate --no-interaction
+                  touch ${{ github.workspace }}/database/database.sqlite
                   php artisan migrate --no-interaction
 
-            - name: Setup Dusk
+            - name: Setup Chrome
               run: php artisan dusk:chrome-driver 149
 
             - name: Start server
@@ -156,16 +121,12 @@ jobs:
               env:
                   APP_URL: http://127.0.0.1:8000
 
-            - name: Run Dusk tests
+            - name: Run Dusk
               run: php artisan dusk --no-interaction
               env:
                   APP_URL: http://127.0.0.1:8000
-                  DB_CONNECTION: mysql
-                  DB_HOST: 127.0.0.1
-                  DB_PORT: 3306
-                  DB_DATABASE: start_test
-                  DB_USERNAME: root
-                  DB_PASSWORD: password
+                  DB_CONNECTION: sqlite
+                  DB_DATABASE: ${{ github.workspace }}/database/database.sqlite
                   JWT_SIGNING_KEY: 6YRSnwQ7VAzkOlVnxLr4hatPIoK6w8j+uqiw16KbU4M=
 
             - name: Upload screenshots
