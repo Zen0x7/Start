@@ -7,9 +7,9 @@ on:
         branches: [main, master]
 
 jobs:
-    backend:
+    test:
         runs-on: ubuntu-latest
-        name: PHPUnit
+        name: Tests & Coverage
 
         steps:
             - uses: actions/checkout@v4
@@ -56,41 +56,33 @@ jobs:
             - name: Pint
               run: vendor/bin/pint --test --format agent
 
-            - name: PHPUnit with coverage
-              run: php artisan test --compact --coverage
-              env:
-                  DB_CONNECTION: sqlite
-                  DB_DATABASE: ${{ github.workspace }}/database/database.sqlite
-                  JWT_SIGNING_KEY: 6YRSnwQ7VAzkOlVnxLr4hatPIoK6w8j+uqiw16KbU4M=
-
-    frontend:
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                node: ['20', '22']
-
-        name: Node ${{ matrix.node }}
-
-        steps:
-            - uses: actions/checkout@v4
-
-            - name: Use Node.js ${{ matrix.node }}
-              uses: actions/setup-node@v4
-              with:
-                  node-version: ${{ matrix.node }}
-                  cache: 'yarn'
-
-            - name: Install dependencies
-              run: yarn install --frozen-lockfile
-
             - name: TypeScript check
               run: yarn typecheck
 
             - name: Prettier
               run: npx prettier --check resources/js/
 
+            - name: ESLint
+              run: npx eslint resources/js/ --max-warnings 0
+
             - name: Unit tests with coverage
               run: yarn test:unit:coverage
+
+            - name: PHPUnit with coverage
+              run: |
+                  mkdir -p coverage/php
+                  php artisan test --compact --coverage-clover coverage/php/clover.xml
+              env:
+                  DB_CONNECTION: sqlite
+                  DB_DATABASE: ${{ github.workspace }}/database/database.sqlite
+                  JWT_SIGNING_KEY: 6YRSnwQ7VAzkOlVnxLr4hatPIoK6w8j+uqiw16KbU4M=
+
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v5
+              with:
+                  files: coverage/php/clover.xml,coverage/lcov.info
+                  flags: unittests
+                  token: ${{ secrets.CODECOV_TOKEN }}
 
     dusk:
         runs-on: ubuntu-latest

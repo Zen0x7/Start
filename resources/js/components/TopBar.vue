@@ -19,7 +19,9 @@ onMounted(async () => {
         const res = await api.get('/auth/profile')
         const data = res as { user?: { avatar_thumb?: string } }
         if (data.user?.avatar_thumb) avatar.value = data.user.avatar_thumb
-    } catch {}
+    } catch {
+        // ignore
+    }
 })
 
 const open = ref(false)
@@ -53,7 +55,9 @@ async function setLang(code: string) {
     langOpen.value = false
     try {
         await api.put('/auth/profile', { locale: code })
-    } catch {}
+    } catch {
+        // ignore
+    }
 }
 
 const languages = [
@@ -70,8 +74,9 @@ const languages = [
                 <router-link
                     :to="{ name: 'dashboard' }"
                     class="text-lg font-bold text-[#111] hover:text-[#333]"
-                    >Start</router-link
                 >
+                    Start
+                </router-link>
             </div>
 
             <div class="relative">
@@ -112,7 +117,9 @@ const languages = [
                             <p class="text-sm font-semibold text-[#111]">
                                 {{ auth.currentUser?.name }}
                             </p>
-                            <p class="text-xs text-[#555]">{{ auth.currentUser?.email }}</p>
+                            <p class="text-xs text-[#555]">
+                                {{ auth.currentUser?.email }}
+                            </p>
                         </div>
 
                         <button

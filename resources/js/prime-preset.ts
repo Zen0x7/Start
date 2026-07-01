@@ -1,9 +1,10 @@
-import Aura from '@primevue/themes/aura'
+import Aura from '@primeuix/themes/aura'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const aura: any = Aura
 const light = aura.semantic?.colorScheme?.light ?? {}
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const CvPreset: any = {
     ...aura,
     primitive: {

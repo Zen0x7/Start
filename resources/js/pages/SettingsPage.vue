@@ -5,7 +5,6 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { api } from '@/services/api'
 import { useToast } from 'primevue/usetoast'
-import { Icons } from '@/components/icons'
 import TopBar from '@/components/TopBar.vue'
 import { User, KeyRound, Activity, AlertTriangle } from '@lucide/vue'
 
@@ -236,9 +235,9 @@ async function deleteAccount() {
                             <label for="s-email">{{ t('auth.email') }}</label>
                         </PvFloatLabel>
                     </div>
-                    <PvButton :loading="saving" class="w-full" @click="saveProfile">{{
-                        saving ? t('settings.saving') : t('settings.save')
-                    }}</PvButton>
+                    <PvButton :loading="saving" class="w-full" @click="saveProfile">
+                        {{ saving ? t('settings.saving') : t('settings.save') }}
+                    </PvButton>
                 </div>
             </div>
 
@@ -264,7 +263,9 @@ async function deleteAccount() {
                     class="mb-3 flex items-center justify-between border-2 border-[#ddd] p-4"
                 >
                     <div class="min-w-0 flex-1">
-                        <p class="truncate font-semibold text-[#111]">{{ device.label }}</p>
+                        <p class="truncate font-semibold text-[#111]">
+                            {{ device.label }}
+                        </p>
                         <p class="text-xs text-[#999]">
                             {{ t('settings.added') }}
                             {{ new Date(device.created_at).toLocaleDateString() }}
@@ -275,8 +276,9 @@ async function deleteAccount() {
                         class="ml-3 shrink-0"
                         :disabled="totpDevices.length <= 1"
                         @click="promptRemoveDevice(device)"
-                        >{{ t('settings.remove') }}</PvButton
                     >
+                        {{ t('settings.remove') }}
+                    </PvButton>
                 </div>
 
                 <router-link
@@ -298,28 +300,32 @@ async function deleteAccount() {
                 >
                     {{ t('settings.danger') }}
                 </h2>
-                <p class="mb-4 text-sm text-[#555]">{{ t('auth.delete_confirm') }}</p>
+                <p class="mb-4 text-sm text-[#555]">
+                    {{ t('auth.delete_confirm') }}
+                </p>
 
                 <div v-if="!showDeleteConfirm">
                     <PvButton
                         severity="secondary"
                         class="border-2 border-[#dc2626] text-[#dc2626]"
                         @click="showDeleteConfirm = true"
-                        >{{ t('settings.delete_account') }}</PvButton
                     >
+                        {{ t('settings.delete_account') }}
+                    </PvButton>
                 </div>
 
                 <div v-else class="space-y-4">
                     <PvInputOtp v-model="deleteCode" :length="6" integer-only />
                     <div class="flex gap-3">
-                        <PvButton severity="secondary" @click="showDeleteConfirm = false">{{
-                            t('settings.cancel')
-                        }}</PvButton>
+                        <PvButton severity="secondary" @click="showDeleteConfirm = false">
+                            {{ t('settings.cancel') }}
+                        </PvButton>
                         <PvButton
                             class="border-2 border-[#dc2626] bg-[#dc2626] text-white"
                             @click="deleteAccount"
-                            >{{ t('settings.confirm_deletion') }}</PvButton
                         >
+                            {{ t('settings.confirm_deletion') }}
+                        </PvButton>
                     </div>
                 </div>
             </div>
@@ -399,7 +405,9 @@ async function deleteAccount() {
                 class="mx-4 w-full max-w-sm border-2 border-[#111] bg-white p-6"
                 style="box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06)"
             >
-                <h2 class="mb-1 text-lg font-bold text-[#111]">{{ t('settings.remove') }}</h2>
+                <h2 class="mb-1 text-lg font-bold text-[#111]">
+                    {{ t('settings.remove') }}
+                </h2>
                 <p class="mb-4 text-sm text-[#555]">
                     {{ t('settings.remove_device_confirm', { device: removeTarget.label }) }}
                 </p>
@@ -409,18 +417,16 @@ async function deleteAccount() {
                 </div>
 
                 <div class="flex gap-3">
-                    <PvButton
-                        severity="secondary"
-                        class="flex-1"
-                        @click="showRemoveModal = false"
-                        >{{ t('settings.cancel') }}</PvButton
-                    >
+                    <PvButton severity="secondary" class="flex-1" @click="showRemoveModal = false">
+                        {{ t('settings.cancel') }}
+                    </PvButton>
                     <PvButton
                         class="flex-1"
                         :disabled="removeCode.length !== 6"
                         @click="confirmRemoveDevice"
-                        >{{ t('settings.remove') }}</PvButton
                     >
+                        {{ t('settings.remove') }}
+                    </PvButton>
                 </div>
             </div>
         </div>

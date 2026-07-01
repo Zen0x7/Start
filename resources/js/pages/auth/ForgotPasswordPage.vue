@@ -42,9 +42,11 @@ async function handleSubmit() {
             :label="t('password.forgot_title')"
             :message="t('password.forgot_desc')"
         >
-            <p v-if="error" class="mb-2 text-sm text-[#dc2626]">{{ error }}</p>
+            <p v-if="error" class="mb-2 text-sm text-[#dc2626]">
+                {{ error }}
+            </p>
 
-            <form @submit.prevent="handleSubmit" class="space-y-4">
+            <form class="space-y-4" @submit.prevent="handleSubmit">
                 <PvFloatLabel>
                     <PvInputText id="fp-email" v-model="email" type="email" class="w-full" />
                     <label for="fp-email">{{ t('auth.email') }}</label>
@@ -62,8 +64,9 @@ async function handleSubmit() {
                 <router-link
                     :to="{ name: 'login' }"
                     class="font-semibold text-[#111] underline hover:text-[#333]"
-                    >{{ t('auth.login') }}</router-link
                 >
+                    {{ t('auth.login') }}
+                </router-link>
             </template>
         </MinimalismCard>
     </template>

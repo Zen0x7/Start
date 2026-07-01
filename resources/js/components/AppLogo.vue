@@ -6,7 +6,7 @@ defineProps<{
 
 <template>
     <svg
-        :class="class"
+        :class="$props.class"
         viewBox="0 0 40 40"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

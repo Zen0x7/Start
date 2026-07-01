@@ -62,15 +62,18 @@ async function handleSubmit() {
                 <router-link
                     :to="{ name: 'register' }"
                     class="font-semibold text-[#111] underline hover:text-[#333]"
-                    >{{ t('verify.create_another') }}</router-link
                 >
+                    {{ t('verify.create_another') }}
+                </router-link>
             </template>
         </MinimalismCard>
     </template>
 
     <template v-else-if="verified">
         <MinimalismCard :icon="Icons.check" label="Status" :message="t('verify.confirmed')">
-            <p class="text-sm text-[#555]">{{ t('verify.redirecting_setup') }}</p>
+            <p class="text-sm text-[#555]">
+                {{ t('verify.redirecting_setup') }}
+            </p>
         </MinimalismCard>
     </template>
 
@@ -80,12 +83,12 @@ async function handleSubmit() {
             :label="t('verify.confirm_title')"
             :message="t('verify.confirm_desc')"
         >
-            <form @submit.prevent="handleSubmit" class="text-left">
+            <form class="text-left" @submit.prevent="handleSubmit">
                 <div>
                     <PvFloatLabel>
                         <PvPassword
-                            input-id="password"
                             v-model="password"
+                            input-id="password"
                             class="w-full"
                             :class="{ 'p-invalid': hasError('password') }"
                             :feedback="false"
@@ -110,8 +113,9 @@ async function handleSubmit() {
                 <router-link
                     :to="{ name: 'register' }"
                     class="font-semibold text-[#111] underline hover:text-[#333]"
-                    >{{ t('verify.create_another') }}</router-link
                 >
+                    {{ t('verify.create_another') }}
+                </router-link>
             </template>
         </MinimalismCard>
     </template>

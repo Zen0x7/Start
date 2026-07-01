@@ -68,7 +68,7 @@ const router = createRouter({
     ],
 })
 
-router.beforeEach((to, from) => {
+router.beforeEach((to, _from) => {
     const auth = useAuthStore()
 
     if (to.name === 'home') {

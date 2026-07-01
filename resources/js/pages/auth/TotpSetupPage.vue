@@ -66,7 +66,10 @@ onMounted(async () => {
             body,
         )
 
-        const resData = res as unknown as { cert_id: number; public_key_jwk: JsonWebKey }
+        const resData = res as unknown as {
+            cert_id: number
+            public_key_jwk: Record<string, unknown>
+        }
         certId.value = resData.cert_id
         const jwk = resData.public_key_jwk
 
@@ -161,7 +164,9 @@ async function confirmSetup() {
             />
 
             <div class="mb-6 border-2 border-[#ddd] bg-[#f5f5f0] p-3 text-xs text-[#555] break-all">
-                <p class="font-mono text-[#111]">{{ secretBase32 }}</p>
+                <p class="font-mono text-[#111]">
+                    {{ secretBase32 }}
+                </p>
             </div>
 
             <p v-if="error" class="mb-2 text-sm text-[#dc2626]">
@@ -196,7 +201,9 @@ async function confirmSetup() {
 
     <template v-else-if="step === 'confirm'">
         <MinimalismCard :icon="Icons.check" :label="t('totp.configured')">
-            <p class="text-sm text-[#555]">{{ t('totp.redirecting') }}</p>
+            <p class="text-sm text-[#555]">
+                {{ t('totp.redirecting') }}
+            </p>
         </MinimalismCard>
     </template>
 </template>

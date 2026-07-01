@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { api } from '@/services/api'
 import { Icons } from '@/components/icons'
 
 const { t } = useI18n()
 const route = useRoute()
-const router = useRouter()
 const auth = useAuthStore()
 
 const email = ref((route.query.email as string) || '')
@@ -69,8 +68,9 @@ async function resendEmail() {
             <router-link
                 :to="{ name: 'register' }"
                 class="font-semibold text-[#111] underline hover:text-[#333]"
-                >{{ t('verify.create_another') }}</router-link
             >
+                {{ t('verify.create_another') }}
+            </router-link>
         </template>
     </MinimalismCard>
 </template>

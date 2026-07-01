@@ -42,7 +42,7 @@ async function handleSubmit() {
 
 <template>
     <MinimalismCard :icon="Icons.person" :label="t('auth.login_title')">
-        <form @submit.prevent="handleSubmit" class="space-y-7 text-left">
+        <form class="space-y-7 text-left" @submit.prevent="handleSubmit">
             <div>
                 <PvFloatLabel>
                     <PvInputText
@@ -61,8 +61,8 @@ async function handleSubmit() {
             <div>
                 <PvFloatLabel>
                     <PvPassword
-                        input-id="password"
                         v-model="password"
+                        input-id="password"
                         class="w-full"
                         :class="{ 'p-invalid': hasError('password') }"
                         :feedback="false"
@@ -84,9 +84,9 @@ async function handleSubmit() {
         </form>
 
         <p class="mt-2 text-center text-xs text-[#999]">
-            <router-link :to="{ name: 'forgot-password' }" class="underline hover:text-[#111]">{{
-                t('password.forgot_title')
-            }}</router-link>
+            <router-link :to="{ name: 'forgot-password' }" class="underline hover:text-[#111]">
+                {{ t('password.forgot_title') }}
+            </router-link>
         </p>
 
         <template #footer>
@@ -94,8 +94,9 @@ async function handleSubmit() {
             <router-link
                 :to="{ name: 'register' }"
                 class="font-semibold text-[#111] underline hover:text-[#333]"
-                >{{ t('auth.register') }}</router-link
             >
+                {{ t('auth.register') }}
+            </router-link>
         </template>
     </MinimalismCard>
 </template>

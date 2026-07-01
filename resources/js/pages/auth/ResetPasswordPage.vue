@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { api } from '@/services/api'
 import { Icons } from '@/components/icons'
 
 const { t } = useI18n()
 const route = useRoute()
-const router = useRouter()
 
 const token = route.params.token as string
 const email = ref('')
@@ -64,8 +63,9 @@ async function handleSubmit() {
                 <router-link
                     :to="{ name: 'forgot-password' }"
                     class="font-semibold text-[#111] underline hover:text-[#333]"
-                    >{{ t('password.request_again') }}</router-link
                 >
+                    {{ t('password.request_again') }}
+                </router-link>
             </template>
         </MinimalismCard>
     </template>
@@ -80,22 +80,25 @@ async function handleSubmit() {
                 <router-link
                     :to="{ name: 'login' }"
                     class="font-semibold text-[#111] underline hover:text-[#333]"
-                    >{{ t('auth.login') }}</router-link
                 >
+                    {{ t('auth.login') }}
+                </router-link>
             </template>
         </MinimalismCard>
     </template>
 
     <template v-else>
         <MinimalismCard :icon="Icons.lock" :label="t('password.reset_title')">
-            <p v-if="error" class="mb-2 text-sm text-[#dc2626]">{{ error }}</p>
+            <p v-if="error" class="mb-2 text-sm text-[#dc2626]">
+                {{ error }}
+            </p>
 
-            <form @submit.prevent="handleSubmit" class="space-y-4">
+            <form class="space-y-4" @submit.prevent="handleSubmit">
                 <PvFloatLabel>
                     <PvPassword
                         id="rp-password"
-                        input-id="rp-password"
                         v-model="password"
+                        input-id="rp-password"
                         class="w-full"
                         :feedback="false"
                         toggle-mask
@@ -106,8 +109,8 @@ async function handleSubmit() {
                 <PvFloatLabel>
                     <PvPassword
                         id="rp-confirm"
-                        input-id="rp-confirm"
                         v-model="passwordConfirmation"
+                        input-id="rp-confirm"
                         class="w-full"
                         :feedback="false"
                         toggle-mask
@@ -116,7 +119,9 @@ async function handleSubmit() {
                 </PvFloatLabel>
 
                 <div v-if="hasTotp" class="pt-2">
-                    <p class="mb-2 text-sm text-[#555]">{{ t('password.totp_required') }}</p>
+                    <p class="mb-2 text-sm text-[#555]">
+                        {{ t('password.totp_required') }}
+                    </p>
                     <div class="flex justify-center">
                         <PvInputOtp v-model="totpCode" :length="6" integer-only />
                     </div>
@@ -134,8 +139,9 @@ async function handleSubmit() {
                 <router-link
                     :to="{ name: 'login' }"
                     class="font-semibold text-[#111] underline hover:text-[#333]"
-                    >{{ t('auth.login') }}</router-link
                 >
+                    {{ t('auth.login') }}
+                </router-link>
             </template>
         </MinimalismCard>
     </template>

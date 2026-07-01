@@ -18,7 +18,9 @@ const auth = useAuthStore()
             <h1 class="mb-4 text-4xl font-bold tracking-tight text-[#111] sm:text-5xl">
                 {{ t('home.welcome') }}
             </h1>
-            <p class="mb-8 text-lg text-[#555]">{{ t('home.description') }}</p>
+            <p class="mb-8 text-lg text-[#555]">
+                {{ t('home.description') }}
+            </p>
 
             <div v-if="!auth.isAuthenticated" class="flex items-center justify-center gap-4">
                 <router-link

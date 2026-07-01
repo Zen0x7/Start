@@ -54,7 +54,9 @@ function onHide() {
             style="box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.06)"
         >
             <div class="mb-4 flex items-center justify-between">
-                <h2 class="text-lg font-bold text-[#111]">{{ t('totp.confirm_action') }}</h2>
+                <h2 class="text-lg font-bold text-[#111]">
+                    {{ t('totp.confirm_action') }}
+                </h2>
                 <button
                     aria-label="Close"
                     class="flex h-8 w-8 items-center justify-center text-[#999] transition-colors hover:bg-[#f5f5f0] hover:text-[#111] focus:outline-none focus:ring-2 focus:ring-[#111]"
@@ -64,7 +66,9 @@ function onHide() {
                 </button>
             </div>
 
-            <p class="mb-4 text-sm text-[#555]">{{ t('totp.confirm_action_desc') }}</p>
+            <p class="mb-4 text-sm text-[#555]">
+                {{ t('totp.confirm_action_desc') }}
+            </p>
 
             <p
                 v-if="error"

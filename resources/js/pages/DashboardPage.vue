@@ -29,7 +29,9 @@ const auth = useAuthStore()
                     <strong class="text-[#111]">{{ auth.currentUser?.email }}</strong
                     >.
                 </p>
-                <p class="mt-2 text-sm text-[#555]">{{ t('dashboard.verified_and_totp') }}</p>
+                <p class="mt-2 text-sm text-[#555]">
+                    {{ t('dashboard.verified_and_totp') }}
+                </p>
             </div>
         </main>
     </div>
