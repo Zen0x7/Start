@@ -207,4 +207,21 @@ class ProfileTest extends TestCase
         $response->assertStatus(200);
         Storage::disk('public')->assertMissing($oldPath);
     }
+
+    public function test_delete_last_totp_device_fails(): void
+    {
+        $user = User::factory()->create();
+        $totp = TOTP::generate();
+        $device = $this->totp->createDevice($user, $totp->getSecret());
+
+        $response = $this->postJson('/api/auth/totp/devices/delete', [
+            'device_id' => $device->id,
+            'totp_code' => $totp->now(),
+        ], [
+            'Authorization' => 'Bearer '.$this->authToken($user),
+        ]);
+
+        $response->assertStatus(400);
+        $this->assertModelExists($device);
+    }
 }
