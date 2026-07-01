@@ -162,3 +162,119 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - To filter on a particular test name: `php artisan test --compact --filter=testName` (recommended after making a change to a related file).
 
 </laravel-boost-guidelines>
+
+=== frontend/spa rules ===
+
+# Frontend SPA — Vue 3 + TypeScript + Tailwind CSS v4
+
+This project uses a Vue 3 SPA (`<script setup lang="ts">`) embedded in Laravel. All UI code lives under `resources/js/`.
+
+## Packages
+
+| Package | Role |
+|---------|------|
+| `vue` ^3.5 | UI framework |
+| `vue-router` ^4.6 | Routing |
+| `pinia` ^2.3 | State management |
+| `typescript` ^6.0 | Type checking |
+| `vue-tsc` ^3.3 | Vue TypeScript checker |
+| `@vitejs/plugin-vue` ^6.0 | Vite integration |
+| `tailwindcss` ^4.0 | Utility-first CSS |
+| `vitest` ^4.1 + `@vue/test-utils` ^2.4 + `jsdom` | Unit testing |
+| `@playwright/test` ^1.61 | E2E testing |
+| `prettier` ^3.9 | Code formatter |
+
+## Directory Structure
+
+```
+resources/
+├── css/
+│   └── app.css              ← Tailwind imports & theme
+├── js/
+│   ├── app.ts               ← SPA entry (mounts #app)
+│   ├── App.vue              ← Root component (<RouterView />)
+│   ├── types/
+│   │   └── env.d.ts         ← Vue SFC type declarations
+│   ├── router/
+│   │   └── index.ts         ← Vue Router config
+│   ├── stores/
+│   │   └── counter.ts       ← Example Pinia store (composition API)
+│   ├── pages/
+│   │   └── HomePage.vue     ← Route pages
+│   ├── components/
+│   │   ├── HelloWorld.vue
+│   │   └── __tests__/
+│   │       └── HelloWorld.spec.ts  ← Vitest unit tests
+│   └── [subdirs]/
+├── views/
+    ├── app.blade.php        ← SPA shell (<div id="app">)
+    └── welcome.blade.php    ← Legacy Laravel welcome page
+```
+
+## Routing
+
+- The SPA catches all routes via `routes/web.php`: `Route::get('/{any?}', ...)->where('any', '.*')`
+- Laravel APIs should be prefixed with `/api/` (not caught by the catch-all).
+- Vue Router uses `createWebHistory()`. Add new routes in `resources/js/router/index.ts`.
+
+## Components
+
+- Use `<script setup lang="ts">` exclusively.
+- Props via `defineProps<{ name: string }>()` (no runtime props).
+- Emits via `defineEmits<{ (e: 'click', id: number): void }>()`.
+- Keep components focused and small. Extract reusable UI into `components/`.
+
+## Pinia Stores
+
+- Use composition API style: `defineStore('name', () => { ... })`.
+- Place stores in `resources/js/stores/`, one file per store.
+
+## TypeScript Conventions
+
+- Path alias `@/*` maps to `resources/js/*`.
+- Use `interface` over `type` for object shapes.
+- Prefer `const` assertions and explicit return types.
+
+## CSS / Tailwind
+
+- Tailwind CSS v4 is configured in `resources/css/app.css` via `@import "tailwindcss"`.
+- No `tailwind.config.*` file — use `@theme` blocks in CSS.
+- Use utility classes; avoid custom CSS unless necessary.
+
+## Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `yarn dev` | Start Vite dev server (HMR) |
+| `yarn build` | Production build |
+| `yarn typecheck` | `vue-tsc --noEmit` |
+| `yarn test:unit` | Run Vitest once |
+| `yarn test:unit:watch` | Vitest in watch mode |
+| `yarn test:e2e` | Run Playwright E2E tests |
+
+## Testing
+
+### Unit (Vitest + Vue Test Utils)
+
+- Tests live next to source as `__tests__/*.spec.ts`.
+- Use `mount()` from `@vue/test-utils`, not `shallowMount()` unless isolating.
+- Globals (`describe`, `it`, `expect`) are auto-imported via `vitest/globals`.
+- Run with: `yarn test:unit`
+
+### E2E (Playwright)
+
+- Tests live in `tests/E2E/`.
+- Requires both the Laravel server (`php artisan serve`) and Vite dev server running.
+- Run with: `yarn test:e2e`
+- Playwright config in `playwright.config.ts`.
+
+### PHP (PHPUnit)
+
+- Backend tests in `tests/Feature/` and `tests/Unit/`.
+- Run with: `php artisan test --compact`
+
+## Prettier
+
+- Config in `.prettierrc` (single quotes, no semicolons, 4-space tabs).
+- Run formatting via editor integration or `npx prettier --write .`.
+

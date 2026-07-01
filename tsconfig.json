@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "jsx": "preserve",
+        "verbatimModuleSyntax": true,
+        "skipLibCheck": true,
+        "noEmit": true,
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "paths": {
+            "@/*": ["./resources/js/*"]
+        },
+        "types": ["vitest/globals"]
+    },
+    "include": [
+        "resources/js/**/*.ts",
+        "resources/js/**/*.vue",
+        "resources/js/**/*.d.ts"
+    ],
+    "exclude": ["node_modules", "public", "vendor"]
+}
