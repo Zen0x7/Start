@@ -19,13 +19,17 @@ Base project for Laravel + Vue 3 authentication systems with multi-factor authen
 |---|---|---|
 | **Login** | ![Login](public/screenshots/01-login.webp) | Sign in with email + password. TOTP challenge if configured. |
 | **Register** | ![Register](public/screenshots/02-register.webp) | Create account with name, email, password. |
-| **Forgot password** | ![Forgot password](public/screenshots/03-forgot-password.webp) | Request reset link by email. |
-| **Verify email** | ![Verify email](public/screenshots/04-verify-email.webp) | Waiting page after registration. Resend option with throttle. |
-| **Dashboard** | ![Dashboard](public/screenshots/05-dashboard.webp) | Authenticated landing page with user info. |
-| **Settings — Profile** | ![Settings profile](public/screenshots/06-settings.webp) | Edit name, email (re-verification), upload avatar. |
-| **Settings — Keys** | ![Settings keys](public/screenshots/07-settings-totp.webp) | Manage TOTP devices. Add/remove keys. |
-| **Settings — Activity** | ![Settings activity](public/screenshots/08-settings-activity.webp) | Recent login attempts and TOTP usage. |
-| **Settings — Destructive** | ![Settings destructive](public/screenshots/09-settings-destructive.webp) | Delete account with TOTP confirmation. |
+| **Verify email** | ![Verify email](public/screenshots/03-verify-email.webp) | Waiting page after registration. Resend option with throttle. |
+| **Confirm email** | ![Confirm email](public/screenshots/04-confirm-email.webp) | Enter password to confirm email address. |
+| **Forgot password** | ![Forgot password](public/screenshots/05-forgot-password.webp) | Request reset link by email. |
+| **Reset password** | ![Reset password](public/screenshots/06-reset-password.webp) | Set new password. TOTP input shown if device configured. |
+| **TOTP setup** | ![TOTP setup](public/screenshots/07-totp-setup.webp) | Scan QR code, add device name, confirm with code. |
+| **TOTP verify** | ![TOTP verify](public/screenshots/08-totp-verify.webp) | Enter TOTP code during login challenge. |
+| **Dashboard** | ![Dashboard](public/screenshots/09-dashboard.webp) | Authenticated landing page with user info. |
+| **Settings — Profile** | ![Settings profile](public/screenshots/10-settings.webp) | Edit name, email (re-verification), upload avatar. |
+| **Settings — Keys** | ![Settings keys](public/screenshots/11-settings-keys.webp) | Manage TOTP devices. Add/remove keys. |
+| **Settings — Activity** | ![Settings activity](public/screenshots/12-settings-activity.webp) | Recent login attempts and TOTP usage. |
+| **Settings — Destructive** | ![Settings destructive](public/screenshots/13-settings-destructive.webp) | Delete account with TOTP confirmation. |
 
 ## Features
 

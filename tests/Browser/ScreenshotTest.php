@@ -2,6 +2,8 @@
 
 namespace Tests\Browser;
 
+use App\Models\LoginAttempt;
+use App\Models\TotpUsageLog;
 use App\Models\User;
 use App\Services\JwtService;
 use App\Services\TotpService;
@@ -24,37 +26,81 @@ class ScreenshotTest extends DuskTestCase
         $jwt = app(JwtService::class);
         $totpService = app(TotpService::class);
         $totp = TOTP::generate();
-        $totpService->createDevice($user, $totp->getSecret(), 'iPhone');
+        $device = $totpService->createDevice($user, $totp->getSecret(), 'iPhone');
         $totpService->createDevice($user, TOTP::generate()->getSecret(), 'Recovery Key');
         $token = $jwt->buildAuthToken((string) $user->id);
         $userId = $user->id;
 
-        $this->browse(function (Browser $browser) use ($token, $userId, $email) {
-            $browser->visit('/login')->pause(4000)->screenshot('01-login');
-            $browser->visit('/register')->pause(3000)->screenshot('02-register');
-            $browser->visit('/forgot-password')->pause(3000)->screenshot('03-forgot-password');
-            $browser->visit('/email/verify?email=' . urlencode($email))->pause(3000)->screenshot('04-verify-email');
+        // Seed activity data
+        LoginAttempt::create([
+            'user_id' => $userId, 'email' => $email, 'successful' => true,
+            'ip_address' => '192.168.1.42', 'user_agent' => 'Chrome/130.0',
+            'created_at' => now()->subMinutes(5),
+        ]);
+        LoginAttempt::create([
+            'user_id' => $userId, 'email' => $email, 'successful' => false,
+            'ip_address' => '10.0.0.1', 'user_agent' => 'Firefox/132.0',
+            'created_at' => now()->subHour(),
+        ]);
+        TotpUsageLog::create([
+            'user_id' => $userId, 'totp_device_id' => $device->id, 'action' => 'login',
+            'ip_address' => '192.168.1.42', 'user_agent' => 'Chrome/130.0',
+            'created_at' => now()->subMinutes(10),
+        ]);
 
-            $browser->visit('/dashboard')->pause(1000);
-            $browser->script([
-                "localStorage.setItem('auth_token', '{$token}');",
-                "localStorage.setItem('auth_user', '{\"id\":{$userId},\"name\":\"Ian Torres\",\"email\":\"{$email}\"}');",
-            ]);
-            $browser->refresh()->pause(5000)->screenshot('05-dashboard');
+        $this->browse(function (Browser $browser) use ($token, $userId, $email, $jwt) {
+            $setEn = function (Browser $b) {
+                $b->script(["localStorage.setItem('app_locale', '\"en\"');"]);
+                $b->refresh()->pause(4000);
+            };
 
-            $browser->visit('/settings')->pause(5000)->screenshot('06-settings');
+            $login = function (Browser $b) use ($token, $userId, $email) {
+                $b->script([
+                    "localStorage.setItem('auth_token', '{$token}');",
+                    "localStorage.setItem('auth_user', '{\"id\":{$userId},\"name\":\"Ian Torres\",\"email\":\"{$email}\"}');",
+                    "localStorage.setItem('app_locale', '\"en\"');",
+                ]);
+                $b->refresh()->pause(5000);
+            };
 
-            $clickKeys = 'document.querySelectorAll(\'button\').forEach(function(b) { if (b.textContent.includes(\'Keys\') || b.textContent.includes(\'Claves\')) b.click(); });';
-            $browser->script([$clickKeys]);
-            $browser->pause(1000)->screenshot('07-settings-totp');
+            // Auth pages
+            $browser->visit('/login?lang=en'); $setEn($browser);
+            $browser->screenshot('01-login');
+            $browser->visit('/register?lang=en'); $setEn($browser);
+            $browser->screenshot('02-register');
+            $browser->visit('/email/verify?lang=en&email=' . urlencode($email)); $setEn($browser);
+            $browser->screenshot('03-verify-email');
 
-            $clickActivity = 'document.querySelectorAll(\'button\').forEach(function(b) { if (b.textContent.includes(\'Activity\') || b.textContent.includes(\'Actividad\')) b.click(); });';
-            $browser->script([$clickActivity]);
-            $browser->pause(1000)->screenshot('08-settings-activity');
+            $verifyToken = $jwt->buildEmailVerificationToken($email);
+            $browser->visit('/email/verify/' . urlencode($verifyToken) . '?lang=en'); $setEn($browser);
+            $browser->screenshot('04-confirm-email');
+            $browser->visit('/forgot-password?lang=en'); $setEn($browser);
+            $browser->screenshot('05-forgot-password');
+            $browser->visit('/reset-password/' . urlencode($verifyToken) . '?lang=en'); $setEn($browser);
+            $browser->screenshot('06-reset-password');
 
-            $clickDanger = 'document.querySelectorAll(\'button\').forEach(function(b) { if (b.textContent.includes(\'Destructive\') || b.textContent.includes(\'Eliminar\')) b.click(); });';
-            $browser->script([$clickDanger]);
-            $browser->pause(1000)->screenshot('09-settings-destructive');
+            // TOTP setup — requires auth
+            $browser->visit('/totp/setup?lang=en'); $login($browser);
+            $browser->screenshot('07-totp-setup');
+
+            // TOTP verify — requires auth
+            $browser->visit('/totp/verify?lang=en'); $login($browser);
+            $browser->screenshot('08-totp-verify');
+
+            // Dashboard
+            $browser->visit('/dashboard?lang=en'); $login($browser);
+            $browser->screenshot('09-dashboard');
+
+            // Settings
+            $browser->visit('/settings?lang=en'); $login($browser);
+            $browser->screenshot('10-settings');
+
+            $browser->script(["document.querySelectorAll('button').forEach(function(b) { if (b.textContent.includes('Keys')) b.click(); });"]);
+            $browser->pause(1000)->screenshot('11-settings-keys');
+            $browser->script(["document.querySelectorAll('button').forEach(function(b) { if (b.textContent.includes('Activity')) b.click(); });"]);
+            $browser->pause(1000)->screenshot('12-settings-activity');
+            $browser->script(["document.querySelectorAll('button').forEach(function(b) { if (b.textContent.includes('Destructive')) b.click(); });"]);
+            $browser->pause(1000)->screenshot('13-settings-destructive');
 
             // Convert PNGs to WebP
             $dir = __DIR__ . '/screenshots';
