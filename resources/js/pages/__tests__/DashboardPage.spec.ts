@@ -49,9 +49,11 @@ describe('DashboardPage', () => {
 
         const wrapper = mountWithPlugins(DashboardPage, { global: { plugins: [router] } })
 
-        const btn = wrapper.find('button')
-        await btn.trigger('click')
+        const buttons = wrapper.findAll('button')
+        const logoutBtn = buttons[buttons.length - 1]
+        await logoutBtn.trigger('click')
 
         expect(localStorage.getItem('auth_token')).toBeNull()
+        expect(localStorage.getItem('auth_user')).toBeNull()
     })
 })

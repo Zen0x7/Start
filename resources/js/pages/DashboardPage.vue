@@ -2,6 +2,8 @@
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
+import AppLogo from '@/components/AppLogo.vue'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -16,9 +18,13 @@ function handleLogout() {
 <template>
     <div class="min-h-screen bg-[#fcfcf8]">
         <header class="border-b-2 border-[#111] bg-white">
-            <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-                <h1 class="text-xl font-bold text-[#111]">{{ t('dashboard.title') }}</h1>
+            <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+                <div class="flex items-center gap-3">
+                    <AppLogo class="h-8 w-8 text-[#111]" />
+                    <h1 class="text-lg font-bold text-[#111]">{{ t('dashboard.title') }}</h1>
+                </div>
                 <div class="flex items-center gap-4">
+                    <LanguageSwitcher />
                     <span class="text-sm text-[#555]">{{ auth.currentUser?.name }}</span>
                     <PvButton severity="secondary" @click="handleLogout">{{ t('auth.logout') }}</PvButton>
                 </div>
