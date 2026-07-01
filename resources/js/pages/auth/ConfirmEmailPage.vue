@@ -87,10 +87,11 @@ async function handleSubmit() {
         </template>
 
         <template v-else>
-            <form
-                class="flex w-full flex-col gap-5"
-                @submit.prevent="handleSubmit"
-            >
+            <div class="w-full border-2 border-[#111] bg-white p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+                <form
+                    class="flex w-full flex-col gap-5"
+                    @submit.prevent="handleSubmit"
+                >
                 <h1 class="text-center text-2xl font-bold">
                     {{ t('verify.confirm_title') }}
                 </h1>
@@ -133,7 +134,8 @@ async function handleSubmit() {
                     class="w-full"
                     :label="loading ? t('verify.confirming') : t('verify.confirm_button')"
                 />
-            </form>
+                    </form>
+                </div>
         </template>
     </main>
 </template>

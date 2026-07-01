@@ -48,10 +48,11 @@ async function handleSubmit() {
 
 <template>
     <main class="mx-auto flex min-h-screen max-w-md items-center px-4">
-        <form
-            class="flex w-full flex-col gap-5"
-            @submit.prevent="handleSubmit"
-        >
+        <div class="w-full border-2 border-[#111] bg-white p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+            <form
+                class="flex w-full flex-col gap-5"
+                @submit.prevent="handleSubmit"
+            >
             <h1 class="text-center text-2xl font-bold">{{ t('auth.login_title') }}</h1>
 
             <PvMessage
@@ -110,9 +111,10 @@ async function handleSubmit() {
                 {{ t('auth.register_link') }}
                 <router-link
                     :to="{ name: 'register' }"
-                    class="text-blue-600 hover:underline"
+                    class="font-semibold text-[#111] underline hover:text-[#333]"
                 >{{ t('auth.register') }}</router-link>
             </p>
-        </form>
+                </form>
+            </div>
     </main>
 </template>

@@ -32,10 +32,11 @@ async function handleSubmit() {
 
 <template>
     <main class="mx-auto flex min-h-screen max-w-md items-center px-4">
-        <form
-            class="w-full space-y-6"
-            @submit.prevent="handleSubmit"
-        >
+        <div class="w-full border-2 border-[#111] bg-white p-8" style="box-shadow: 10px 10px 0 rgba(0,0,0,0.06)">
+            <form
+                class="flex w-full flex-col gap-5"
+                @submit.prevent="handleSubmit"
+            >
             <div class="text-center">
                 <div class="rounded-full bg-blue-100 p-4 mx-auto w-16 h-16 flex items-center justify-center">
                     <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,6 +73,7 @@ async function handleSubmit() {
                 class="w-full"
                 :label="loading ? t('totp.verifying') : t('totp.verify_code')"
             />
-        </form>
+                </form>
+            </div>
     </main>
 </template>

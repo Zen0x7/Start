@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { createI18n } from 'vue-i18n'
 import PrimeVue from 'primevue/config'
-import Aura from '@primevue/themes/aura'
+import { CvPreset } from '@/prime-preset'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -32,7 +32,7 @@ export function mountWithPlugins(component: any, options?: any) {
                 [i18n],
                 [PrimeVue, {
                     theme: {
-                        preset: Aura,
+                        preset: CvPreset,
                         options: { darkModeSelector: false, cssLayer: false },
                     },
                 }],

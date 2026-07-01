@@ -4,7 +4,7 @@ import router from '@/router'
 import Root from '@/App.vue'
 import { i18n } from '@/i18n'
 import PrimeVue from 'primevue/config'
-import Aura from '@primevue/themes/aura'
+import { CvPreset } from '@/prime-preset'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -21,7 +21,7 @@ export function createApplication(): VueApp {
     app.use(i18n)
     app.use(PrimeVue, {
         theme: {
-            preset: Aura,
+            preset: CvPreset,
             options: {
                 darkModeSelector: false,
                 cssLayer: false,
